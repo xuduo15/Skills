@@ -1,0 +1,2155 @@
+############################## MySQL Database ##############################
+CREATE DATABASE Leetcode;
+
+USE Leetcode;
+
+# Employee table for most of questions
+CREATE TABLE employee
+(
+    Emp_Id  	 	    DECIMAL(4,0) NOT NULL,
+    Name   	    VARCHAR(10) default NULL,
+    Job                 VARCHAR(10)  default NULL,
+    Mgr_Id                DECIMAL(4,0)  default NULL,
+    Hiredate      DATE  default NULL,
+    Salary                 DECIMAL(7,2)  default NULL,
+    Commission             DECIMAL(7,2) default NULL,
+    Dept_Id         DECIMAL(2,0) default NULL
+);
+
+INSERT INTO employee 
+(Emp_Id, Name, Job, Mgr_Id, Hiredate, Salary, Commission, Dept_Id)
+VALUES 
+('7369','Smith','clerk','7902','1980-12-17','800.00',NULL,'20'), 
+('7499','Allen','salesman','7698','1981-02-20','1600.00','300.00','30'),
+('7521','Ward','salesman','7698','1981-02-22','1250.00','500.00','30'),
+('7566','Jones','manager','7839','1981-04-02','2975.00',NULL,'20'),
+('7654','Martin','salesman','7698','1981-09-28','1250.00','1400.00','30'),
+('7698','Blake','manager','7839','1981-05-01','2850.00',NULL,'30'),
+('7782','Clark','manager','7839','1981-06-09','2450.00',NULL,'10'),
+('7788','Scott','analyst','7566','1982-12-09','3000.00',NULL,'20'),
+('7839','King','president',NULL,'1981-11-17','5000.00',NULL,'10'),
+('7844','Turner','salesman','7698','1981-09-08','1500.00','0.00','30'),
+('7876','Adams','clerk','7788','1983-01-12','1100.00',NULL,'20'),
+('7900','James','clerk','7698','1981-12-03','950.00',NULL,'30'),
+('7902','Ford','analyst','7566','1981-12-03','3000.00',NULL,'20'),
+('7934','Miller','clerk','7782','1982-01-23','1300.00',NULL,'10');
+
+CREATE TABLE department
+(
+    Dept_Id  	 	    INT,
+    Dept_name   	    VARCHAR(30),
+    Location                 VARCHAR(30)
+);
+
+INSERT INTO department 
+(Dept_Id, Dept_name, Location)
+VALUES 
+('10','ACCOUNTING','NEW YORK'),
+('20','IT','DALLAS'),
+('30','SALES','CHICAGO'),
+('40','OPERATIONS','BOSTON');
+
+# 180
+CREATE TABLE logs
+(
+    Id  	 	    INT,
+    Num   	    INT
+);
+
+INSERT INTO logs 
+(Id, Num)
+VALUES 
+("1","1"),
+("2","1"),
+("3","1"),
+("4","2"),
+("5","1"),
+("6","2"),
+("7","2");
+
+# 196
+CREATE TABLE person
+(
+    Id  	 	    INT,
+    Email   	    VARCHAR(20)
+);
+
+INSERT INTO person 
+(Id, Email)
+VALUES 
+('1','john@example.com'),
+('2','bob@example.com'),
+('3','john@example.com');
+
+# 197
+CREATE TABLE weather
+(
+    Id  	 	    INT,
+    RecordDate   	    Date,
+    Temperature             INT
+);
+
+INSERT INTO weather 
+(Id, RecordDate, Temperature)
+VALUES 
+('1','2015-01-01','10'),
+('2','2015-01-02','25'),
+('3','2015-01-03','20'),
+('4','2015-01-04','30');
+
+# 262
+CREATE TABLE trips
+(
+    Id  	 	    INT,
+    Client_Id   	    INT,
+    Driver_Id             INT,
+    City_Id			INT,
+    Status			VARCHAR(30),
+    Request_at		DATE
+);
+
+INSERT INTO trips 
+(Id,Client_Id,Driver_Id, City_Id,Status,Request_at)
+VALUES 
+('1','1','10','1','completed','2013-10-01'),
+('2','2','11','1','cancelled_by_driver','2013-10-01'),
+('3','3','12','6','completed','2013-10-01'),
+('4','4','13','6','cancelled_by_client','2013-10-01'),
+('5','1','10','1','completed','2013-10-02'),
+('6','2','11','6','completed','2013-10-02'),
+('7','3','12','6','completed','2013-10-02'),
+('8','2','12','12','completed','2013-10-03'),
+('9','3','10','12','completed','2013-10-03'),
+('10','4','13','12','cancelled_by_driver','2013-10-03');
+
+CREATE TABLE users
+(
+    Users_Id  	 	    INT,
+    Banned   	    VARCHAR(5),
+    Role             VARCHAR(10)
+);
+
+INSERT INTO users 
+(Users_Id,Banned,Role)
+VALUES 
+('1','No','client'),
+('2','Yes','client'),
+('3','No','client'),
+('4','No','client'),
+('10','No','driver'),
+('11','No','driver'),
+('12','No','driver'),
+('13','No','driver');
+
+# 511, 512, 534, 550
+CREATE TABLE game
+(
+    player_id  	 	    INT,
+    device_id   	    INT,
+    event_date             DATE,
+    games_played			INT
+);
+
+INSERT INTO game 
+(player_id, device_id, event_date, games_played)
+VALUES 
+('1','2','2016-03-01','5'),
+('1','2','2016-03-02','6'),
+('1','2','2016-06-25','1'),
+('2','3','2016-06-25','1'),
+('3','1','2016-03-02','0'),
+('3','4','2016-07-03','5');
+
+# 569
+CREATE TABLE salary_median
+(
+    Id  	 	    INT,
+    Company   	    VARCHAR(3),
+    Salary			INT
+);
+
+INSERT INTO salary_median
+(Id, Company, Salary)
+VALUES 
+("1","A","10"),
+("2","A","20"),
+("3","A","30"),
+("4","A","40"),
+("5","B","10"),
+("6","B","20"),
+("7","B","30"),
+("8","B","30"),
+("9","C","10"),
+("10","C","20"),
+("11","C","30"),
+("12","D","10"),
+("13","D","20"),
+("14","D","20"),
+("15","D","40"),
+("16","D","50");
+
+# 571
+CREATE TABLE numbers
+(
+    Number  	 	    INT,
+    Frequency			INT
+);
+
+INSERT INTO numbers
+(Number, Frequency)
+VALUES 
+("0","2"),
+("1","9"),
+("2","1"),
+("3","6"),
+("4","4");
+
+CREATE TABLE numbers2
+(
+    ID  	 	    INT,
+    Frequency			INT
+);
+
+INSERT INTO numbers2
+(ID, Frequency)
+VALUES 
+("1","2"),
+("2","3"),
+("3","3"),
+("4","5"),
+("5","6"),
+("6","7");
+
+# 574
+CREATE TABLE candidate
+(
+    Id  	 	    INT,
+    Name   	    VARCHAR(10)
+);
+
+INSERT INTO candidate
+(Id, Name)
+VALUES 
+("1","A"),
+("2","B"),
+("3","C"),
+("4","D"),
+("5","E");
+
+CREATE TABLE vote
+(
+    Id  	 	    INT,
+    CandidateId   	    INT
+);
+
+INSERT INTO vote
+(Id, CandidateId)
+VALUES 
+("1","2"),
+("2","4"),
+("3","3"),
+("4","2"),
+("5","5");
+
+# 577
+CREATE TABLE bonus
+(
+    job  	 	    VARCHAR(20),
+    bonus   	    INT
+);
+
+INSERT INTO bonus
+(job, bonus)
+VALUES 
+("salesmen","2000"),
+("analyst","1000"),
+("clerk","500");
+
+# 578
+CREATE TABLE survey_log
+(
+    uid  	 	    INT,
+    action   	   VARCHAR(10),
+    question_id                 INT,
+    answer_id			INT,
+    q_num			INT,
+    timestamp  	INT
+);
+
+INSERT INTO survey_log 
+(uid, action, question_id,answer_id,q_num,timestamp)
+VALUES 
+("5","show","285",null,"1","123"),
+("5","answer","285",124124,"1","124"),
+("5","show","369",null,"2","125"),
+("5","skip","369",null,"2","126");
+
+# 579
+CREATE TABLE employee2
+(
+    Id  	 	    INT,
+    Month                 INT,
+    Salary			INT
+);
+
+INSERT INTO employee2 
+(Id, Month, Salary)
+VALUES 
+("1","1","20"),
+("2","1","20"),
+("1","2","30"),
+("2","2","30"),
+("3","2","40"),
+("1","3","40"),
+("3","3","60"),
+("1","4","60"),
+("3","4","70"),
+("1","5","70");
+
+# 580, 1412
+CREATE TABLE student
+(
+    student_id  	 	    INT,
+    student_name   	   VARCHAR(10),
+    gender                 VARCHAR(10),
+    dept_id			INT
+);
+
+INSERT INTO student 
+(student_id, student_name, gender,dept_id)
+VALUES 
+("1","Jack","M","1"),
+("2","Jane","F","1"),
+("3","Mark","M","2"),
+("4","Daniel","M","2"),
+("5","Will","M","2");
+
+CREATE TABLE department2
+(
+    dept_id  	 	    INT,
+    dept_name   	   VARCHAR(20)
+);
+
+INSERT INTO department2 
+(dept_id, dept_name)
+VALUES 
+("1","Engineering"),
+("2","Science"),
+("3","Law");
+
+# 584
+CREATE TABLE customer
+(
+    id  	 	    INT,
+    name   	    VARCHAR(10),
+    referee_id                 INT
+);
+
+INSERT INTO customer 
+(id, name, referee_id)
+VALUES 
+("1","Will",null),
+("2","Jane",null),
+("3","Alex","2"),
+("4","Bill",null),
+("5","Zack","1"),
+("6","Mark","2");
+
+# 585
+CREATE TABLE insurance
+(
+    PID  	 	    INT,
+    TIV_2015   	    INT,
+    TIV_2016                 INT,
+    LAT						INT,
+    LON						INT
+);
+
+INSERT INTO insurance 
+(PID, TIV_2015, TIV_2016,LAT,LON)
+VALUES 
+("1","10","5","10","10"),
+("2","20","20","20","20"),
+("3","10","30","20","20"),
+("4","10","40","40","40");
+
+# 585, 1045
+CREATE TABLE customer2
+(
+    order_number  	 	    INT,
+    customer_id   	    INT,
+    product_key		INT,
+    order_date                 date,
+    required_date						date,
+    shipped_date						date,
+    status						VARCHAR(15),
+    comment					VARCHAR(100)
+);
+
+INSERT INTO customer2 
+(order_number, customer_id, product_key, order_date, required_date, shipped_date, status, comment)
+VALUES 
+("1","1","6","2017-04-09","2017-04-13","2017-04-12","Closed",""),
+("2","2","6","2017-04-15","2017-04-20","2017-04-18","Closed",""),
+("3","3","5","2017-04-16","2017-04-25","2017-04-20","Closed",""),
+("4","3","6","2017-04-18","2017-04-28","2017-04-25","Closed","");
+
+# 595
+CREATE TABLE world
+(
+    name  	 	    VARCHAR(20),
+    continent   	    VARCHAR(10),
+    area                 INT,
+    population						INT,
+    gdp						INT
+);
+
+INSERT INTO world 
+(name,continent,area,population,gdp)
+VALUES 
+("Afghanistan","Asian","652230","25500100","20343000"),
+("Albania","Europe","28748","2831741","12960000"),
+("Algeria","Africa","2381741","37100000","288681000"),
+("Andorra","Europe","468","78115","3712000"),
+("Angola","Africa","1246700","20609294","100990000");
+
+# 595
+CREATE TABLE courses
+(
+    student  	 	    VARCHAR(1),
+    class   	    VARCHAR(10)
+);
+
+INSERT INTO courses 
+(student,class)
+VALUES 
+("A","Math"),
+("B","English"),
+("C","Math"),
+("D","Biology"),
+("E","Math"),
+("F","Computer"),
+("G","Math"),
+("H","Math"),
+("I","Math");
+
+# 597, 602
+CREATE TABLE friend_request
+(
+    sender_id  	 	    INT NOT NULL,
+    send_to_id   	    INT NOT NULL,
+    request_date                 DATE
+);
+
+INSERT INTO friend_request 
+(sender_id, send_to_id, request_date)
+VALUES 
+('1','2','2016-06-01'), 
+('1','3','2016-06-01'), 
+('1','4','2016-06-01'), 
+('2','3','2016-06-02'), 
+('3','4','2016-06-09');
+
+CREATE TABLE request_accepted
+(
+    requester_id  	 	    INT NOT NULL,
+    accepter_id   	    INT NOT NULL,
+    accept_date                 DATE
+);
+
+INSERT INTO request_accepted 
+(requester_id, accepter_id, accept_date)
+VALUES 
+('1','2','2016-06-03'), 
+('1','3','2016-06-08'), 
+('2','3','2016-06-08'), 
+('3','4','2016-06-09'), 
+('3','4','2016-06-10');
+
+# 601
+CREATE TABLE stadium
+(
+    id  	 	    INT NOT NULL,
+    visit_date   	    DATE,
+    people                 INT
+);
+
+INSERT INTO stadium 
+(id, visit_date, people)
+VALUES 
+("1","2017-01-01","10"),
+("2","2017-01-02","109"),
+("3","2017-01-03","150"),
+("4","2017-01-04","99"),
+("5","2017-01-05","145"),
+("6","2017-01-06","1455"),
+("7","2017-01-07","199"),
+("8","2017-01-08","188");
+
+# 603, 626
+CREATE TABLE seat
+(
+    seat_id  	 	    INT NOT NULL,
+    name		VARCHAR(10),
+    free   	    INT NOT NULL
+);
+
+INSERT INTO seat
+(seat_id, name, free)
+VALUES 
+("1","Abbot","1"), 
+("2","Doris","0"), 
+("3","Emerson","1"), 
+("4","Green","1"),
+("5","James","1");
+
+CREATE TABLE seat2
+(
+    seat_id  	 	    INT NOT NULL,
+    name		VARCHAR(10),
+    free   	    INT NOT NULL
+);
+
+INSERT INTO seat2
+(seat_id, name, free)
+VALUES 
+("1","Abbot","1"), 
+("2","Doris","0"), 
+("3","Emerson","1"), 
+("4","Green","1");
+
+# 607
+CREATE TABLE salesperson
+(
+    sales_id  	 	    INT NOT NULL,
+    name   	    VARCHAR(10) NOT NULL,
+    salary				INT,
+    commission_rate	 INT,
+    hire_date DATE
+);
+
+INSERT INTO salesperson 
+(sales_id, name, salary, commission_rate,hire_date)
+VALUES 
+('1','John','10000','6','2006-4-1'), 
+('2','Amy','12000','5','2010-5-1'), 
+('3','Mark','65000','12','2008-12-25'), 
+('4','Pam','25000','25','2005-1-1'), 
+('5','Alex','50000','10','2007-2-3');
+
+CREATE TABLE company
+(
+    com_id  	 	    INT NOT NULL,
+    name   	    VARCHAR(10) NOT NULL,
+    city				VARCHAR(20)
+);
+
+INSERT INTO company 
+(com_id, name, city)
+VALUES 
+('1','RED','Boston'), 
+('2','ORANGE','New York'), 
+('3','YELLOW','Boston'), 
+('4','GREEN','Austin');
+
+CREATE TABLE orders
+(
+    order_id  	 	    INT NOT NULL,
+    order_date   	 DATE,
+    com_id				INT,
+    sales_id	 INT,
+    amount  INT
+);
+
+INSERT INTO orders 
+(order_id,order_date,com_id,sales_id,amount)
+VALUES 
+('1','2014-1-1','3','4','10000'), 
+('2','2014-2-1','4','5','5000'), 
+('3','2014-3-1','1','1','50000'), 
+('4','2014-4-1','1','4','25000');
+
+# 608
+CREATE TABLE tree
+(
+    id  	 	    INT,
+    p_id   	 INT
+);
+
+INSERT INTO tree 
+(id,p_id)
+VALUES 
+("1",null),
+("2","1"),
+("3","1"),
+("4","2"),
+("5","2");
+
+# 610
+CREATE TABLE triangle
+(
+    x  	 	    INT,
+    y   	 INT,
+    z				INT
+);
+
+INSERT INTO triangle 
+(x,y,z)
+VALUES 
+('13','15','30'), 
+('10','20','15');
+
+# 612
+CREATE TABLE point_2d
+(
+    x  	 	    INT,
+    y   	 INT
+);
+
+INSERT INTO point_2d 
+(x,y)
+VALUES 
+('-1','-1'), 
+('0','0'),
+('-1','-2');
+
+# 613
+CREATE TABLE point
+(
+    x  	 	    INT
+);
+
+INSERT INTO point 
+(x)
+VALUES 
+('-1'), 
+('0'), 
+('2');
+
+# 614
+CREATE TABLE follow
+(
+    followee 	 	    VARCHAR(5),
+    follower   	 VARCHAR(5)
+);
+
+INSERT INTO follow 
+(followee,follower)
+VALUES 
+("A","B"), 
+("B","C"), 
+("B","D"), 
+("D","E");
+
+# 615, 627
+CREATE TABLE salary
+(
+    id  	 	    INT,
+    employee_id	INT,
+    gender		VARCHAR(5),
+    amount	INT,
+    pay_date			date
+);
+
+INSERT INTO salary
+(id, employee_id, gender, amount, pay_date)
+VALUES 
+("1","1","m","9000","2017-03-31"),
+("2","2","m","6000","2017-03-31"),
+("3","3","m","10000","2017-03-31"),
+("4","1","m","7000","2017-02-28"),
+("5","2","f","6000","2017-02-28"),
+("6","3","f","8000","2017-02-28");
+
+CREATE TABLE employee3
+(
+    employee_id  	 	    INT,
+    department_id			INT
+);
+
+INSERT INTO employee3 
+(employee_id, department_id)
+VALUES 
+("1","1"),
+("2","2"),
+("3","2");
+
+# 618
+CREATE TABLE geography
+(
+    name  	 	    VARCHAR(10),
+    continent			VARCHAR(20)
+);
+
+INSERT INTO geography 
+(name, continent)
+VALUES 
+('Jack','America'),
+('Pascal','Europe'),
+('Xi','Asia'),
+('Jane','America');
+
+# 619
+CREATE TABLE numbers3
+(
+    num  	 	    INT
+);
+
+INSERT INTO numbers3 
+(num)
+VALUES 
+('8'), 
+('8'), 
+('3'),
+('3'), 
+('1'), 
+('4'),
+('5'), 
+('6');
+
+# 620
+CREATE TABLE cinema
+(
+    id  	 	    INT,
+    movie		VARCHAR(20),
+    description VARCHAR(20),
+    rating		DECIMAL(5,1)
+);
+
+INSERT INTO cinema 
+(id,movie,description, rating)
+VALUES 
+('1','War','great 3D','8.9'), 
+('2','Science','fiction','8.5'), 
+('3','irish','boring','6.2'), 
+('4','Ice song','Fantacy','8.6'), 
+('5','House card','Interesting','9.1');
+
+# 1045
+CREATE TABLE product
+(
+    product_key	INT
+);
+
+INSERT INTO product
+(product_key)
+VALUES 
+("5"),
+("6");
+
+# 1050
+CREATE TABLE actordirector
+(
+    actor_id  	 	    INT,
+    director_id		INT,
+    timestamp 		INT
+);
+
+INSERT INTO actordirector 
+(actor_id,director_id,timestamp)
+VALUES 
+("1","1","0"),
+("1","1","1"),
+("1","1","2"),
+("1","2","3"),
+("1","2","4"),
+("2","1","5"),
+("2","1","6");
+
+# 1068
+CREATE TABLE sales
+(
+    sale_id  	 	    INT,
+    product_id		INT,
+    year 		INT,
+    quantity	INT,
+    price		INT
+);
+
+INSERT INTO sales 
+(sale_id,product_id,year,quantity,price)
+VALUES 
+("1","100","2008","10","5000"),
+("2","100","2009","12","5000"),
+("7","200","2011","15","9000");
+
+CREATE TABLE product22
+(
+    product_id  	 	    INT,
+    product_name		VARCHAR(10)
+);
+
+INSERT INTO product22
+(product_id,product_name)
+VALUES 
+("100","Nokia"),
+("200","Apple"),
+("300","Samsung");
+
+# 1075, 1076, 1077
+CREATE TABLE project4
+(
+    project_id  	 	    INT,
+    employee_id		INT
+);
+
+INSERT INTO project4
+(project_id,employee_id)
+VALUES 
+("1","1"),
+("1","2"),
+("1","3"),
+("2","1"),
+("2","4");
+
+CREATE TABLE employee4
+(
+    employee_id  	 	    INT, 
+    name		VARCHAR(10),
+    experience_years	INT
+);
+
+INSERT INTO employee4
+(employee_id,name,experience_years)
+VALUES 
+("1","Khaled","3"),
+("2","Ali","2"),
+("3","John","3"),
+("4","Doe","2");
+
+# 1082 - 1084
+CREATE TABLE product2
+(
+    product_id  	 	    INT,
+    product_name		VARCHAR(10),
+    unit_price			INT
+);
+
+INSERT INTO product2 
+(product_id,product_name, unit_price)
+VALUES 
+("100","S8","1000"),
+("200","G4","800"),
+("300","iPhone","1400");
+
+CREATE TABLE sales2
+(
+    seller_id  	 	    INT,
+    product_id		INT,
+    buyer_id	INT,
+    sale_date	date,
+    quantity			INT,
+    price				INT
+);
+
+INSERT INTO sales2
+(seller_id,product_id,buyer_id,sale_date,quantity,price)
+VALUES 
+("1","100","1","2019-01-21","2","2000"),
+("1","200","2","2019-02-17","1","800"),
+("2","200","3","2019-06-02","1","800"),
+("3","300","4","2019-05-13","2","2800");
+
+# 1097
+CREATE TABLE activity
+(
+    player_id  	 	    INT,
+    device_id				INT,
+    event_date		    date,
+ games_played 		INT
+);
+
+INSERT INTO activity 
+(player_id, device_id, event_date, games_played)
+VALUES 
+("1","2","2016-03-01","5"),
+("1","2","2016-03-02","6"),
+("2","3","2017-06-25","1"),
+("3","1","2016-03-01","0"),
+("3","4","2016-07-03","5");
+
+# 1098
+CREATE TABLE books
+(
+    book_id  	 	    INT,
+    name		varchar(50),
+    available_from 	date
+);
+
+INSERT INTO books 
+(book_id,name,available_from)
+VALUES 
+("1","Kalila And Dema","2010-01-01"),
+("2","28 Letters","2012-05-12"),
+("3","The Hobbit","2019-06-10"),
+("4","13 Reasons Why","2019-06-01"),
+("5","The Hunger Games","2008-09-21");
+
+CREATE TABLE orders_book
+(
+    order_id  	 	    INT,
+    book_id		INT,
+    quantity 	INT,
+    dispatch_date	date
+);
+
+INSERT INTO orders_book 
+(order_id,book_id,quantity,dispatch_date)
+VALUES 
+("1","1","2","2018-07-26"),
+("2","1","1","2018-11-05"),
+("3","3","8","2019-06-11"),
+("4","4","6","2019-06-05"),
+("5","4","5","2019-06-20"),
+("6","5","9","2009-02-02"),
+("7","5","8","2010-04-13");
+
+# 1107
+CREATE TABLE traffic
+(
+    user_id  	 	    INT,
+    activity		VARCHAR(10),
+    activity_date 	date
+);
+
+INSERT INTO traffic 
+(user_id,activity,activity_date)
+VALUES 
+("1","login","2019-05-01"),
+("1","homepage","2019-05-01"),
+("1","logout","2019-05-01"),
+("2","login","2019-06-21"),
+("2","logout","2019-06-21"),
+("3","login","2019-01-01"),
+("3","jobs","2019-01-01"),
+("3","logout","2019-01-01"),
+("4","login","2019-06-21"),
+("4","groups","2019-06-21"),
+("4","logout","2019-06-21"),
+("5","login","2019-03-01"),
+("5","logout","2019-03-01"),
+("5","login","2019-06-21"),
+("5","logout","2019-06-21");
+
+# 1112
+CREATE TABLE enrollments
+(
+    student_id  	 	    INT,
+    course_id		INT,
+    grade 	INT
+);
+
+INSERT INTO enrollments 
+(student_id,course_id,grade)
+VALUES 
+("2","2","95"),
+("2","3","95"),
+("1","1","90"),
+("1","2","99"),
+("3","1","80"),
+("3","2","75"),
+("3","3","82");
+
+# 1113
+CREATE TABLE actions
+(
+    user_id  	 	    INT,
+    post_id			INT,
+    action_date 	date,
+    action				VARCHAR(10),
+    extra				VARCHAR(10)
+);
+
+INSERT INTO actions 
+(user_id,post_id,action_date,action, extra)
+VALUES 
+("1","1","2019-07-01","view",null),
+("1","1","2019-07-01","like",null),
+("1","1","2019-07-01","share",null),
+("2","4","2019-07-04","view",null),
+("2","4","2019-07-04","reoprt","spam"),
+("3","4","2019-07-04","view",null),
+("3","4","2019-07-04","report","spam"),
+("4","3","2019-07-02","view",null),
+("4","3","2019-07-02","report","spam"),
+("5","2","2019-07-04","view",null),
+("5","2","2019-07-04","report","racism"),
+("5","5","2019-07-04","view",null),
+("5","5","2019-07-04","report","racism");
+
+# 1126
+CREATE TABLE events
+(
+    business_id  	 	    INT,
+    event_type		VARCHAR(20),
+    occurences 	INT
+);
+
+INSERT INTO events 
+(business_id,event_type,occurences)
+VALUES 
+("1","reviews","7"),
+("3","reviews","3"),
+("1","ads","11"),
+("2","ads","7"),
+("3","ads","6"),
+("1","page views","3"),
+("2","page views","12");
+
+# 1127
+CREATE TABLE spending
+(
+    user_id  	 	    INT,
+    spend_date 	date,
+    platform			VARCHAR(10),
+    amount			INT
+);
+
+INSERT INTO spending 
+(user_id,spend_date,platform, amount)
+VALUES 
+("1","2019-07-01","mobile","100"),
+("1","2019-07-01","desktop","200"),
+("2","2019-07-01","mobile","100"),
+("2","2019-07-02","mobile","500"),
+("3","2019-07-01","desktop","100"),
+("3","2019-07-02","desktop","100");
+
+# 1132
+CREATE TABLE actions2
+(
+    user_id  	 	    INT,
+    post_id		INT,
+    action_date 	date,
+    action			VARCHAR(10),
+    extra				VARCHAR(10)
+);
+
+INSERT INTO actions2 
+(user_id,post_id,action_date,action,extra)
+VALUES 
+("1","1","2019-07-01","view",null),
+("1","1","2019-07-01","like",null),
+("1","1","2019-07-01","share",null),
+("2","2","2019-07-04","view",null),
+("2","2","2019-07-04","report","spam"),
+("3","4","2019-07-04","view",null),
+("3","4","2019-07-04","report","spam"),
+("4","3","2019-07-02","view",null),
+("4","3","2019-07-02","report","spam"),
+("5","2","2019-07-03","view",null),
+("5","2","2019-07-03","report","racism"),
+("5","5","2019-07-03","view",null),
+("5","5","2019-07-03","report","racism");
+
+CREATE TABLE removals
+(
+    post_id  	 	    INT,
+    remove_date 	date
+);
+
+INSERT INTO removals 
+(post_id,remove_date)
+VALUES 
+("2","2019-07-20"),
+("3","2019-07-18");
+
+# 1141
+CREATE TABLE activity2
+(
+    user_id  	 	    INT,
+    session_id		INT,
+    activity_date 	date,
+    activity_type	VARCHAR(30)
+);
+
+INSERT INTO activity2
+(user_id,session_id,activity_date,activity_type)
+VALUES 
+("1","1","2019-07-20","open_session"),
+("1","1","2019-07-20","scroll_down"),
+("1","1","2019-07-20","end_session"),
+("2","4","2019-07-20","open_session"),
+("2","4","2019-07-21","send_message"),
+("2","4","2019-07-21","end_session"),
+("3","2","2019-07-21","open_session"),
+("3","2","2019-07-21","send_message"),
+("3","2","2019-07-21","end_session"),
+("3","5","2019-07-21","open_session"),
+("3","5","2019-07-21","scroll_down"),
+("3","5","2019-07-21","end_session"),
+("4","3","2019-06-25","open_session"),
+("4","3","2019-06-25","end_session");
+
+# 1148 - 1149
+CREATE TABLE views
+(
+    article_id  	 	    INT,
+    author_id		INT,
+    viewer_id 	INT,
+    view_date		date
+);
+
+INSERT INTO views
+(article_id,author_id,viewer_id,view_date)
+VALUES 
+("1","3","5","2019-08-01"),
+("3","4","5","2019-08-01"),
+("1","3","6","2019-08-02"),
+("2","7","7","2019-08-01"),
+("2","7","6","2019-08-02"),
+("4","7","1","2019-07-22"),
+("3","4","4","2019-07-21"),
+("3","4","4","2019-07-21");
+
+# 1158 - 1159
+CREATE TABLE users2
+(
+    user_id  	 	    INT,
+    join_date		DATE,
+    favorite_brand 	VARCHAR(20)
+);
+
+INSERT INTO users2
+(user_id,join_date,favorite_brand)
+VALUES 
+("1","2018-01-01","Lenovo"),
+("2","2018-02-09","Samsung"),
+("3","2018-01-19","LG"),
+("4","2018-05-21","HP");
+
+
+CREATE TABLE orders2
+(
+    order_id  	 	    INT,
+    order_date		DATE,
+    item_id 		INT,
+    buyer_id			INT,
+    seller_id			INT
+);
+
+INSERT INTO orders2
+(order_id,order_date,item_id,buyer_id,seller_id)
+VALUES 
+("1","2019-08-01","4","1","2"),
+("2","2018-08-02","2","1","3"),
+("3","2019-08-03","3","2","3"),
+("4","2018-08-04","1","4","2"),
+("5","2018-08-04","1","3","4"),
+("6","2019-08-05","2","2","4");
+
+CREATE TABLE items
+(
+    item_id  	 	    INT,
+    item_brand		VARCHAR(20)
+);
+
+INSERT INTO items
+(item_id,item_brand)
+VALUES 
+("1","Samsung"),
+("2","Lenovo"),
+("3","LG"),
+("4","HP");
+
+### 1164
+CREATE TABLE product3
+(
+    product_id  	 	    INT,
+    new_price		INT,
+    change_date			date
+);
+
+INSERT INTO product3
+(product_id,new_price,change_date)
+VALUES 
+("1","20","2019-08-14"),
+("2","50","2019-08-14"),
+("1","30","2019-08-15"),
+("1","35","2019-08-16"),
+("2","65","2019-08-17"),
+("3","20","2019-08-18");
+
+# 1173 - 1174
+CREATE TABLE delivery
+(
+    delivery_id  	 	    INT,
+    customer_id		INT,
+    order_date			date,
+    customer_pref_delivery_date	date
+);
+
+INSERT INTO delivery
+(delivery_id,customer_id,order_date,customer_pref_delivery_date)
+VALUES 
+("1","1","2019-08-01","2019-08-02"),
+("2","2","2019-08-02","2019-08-02"),
+("3","1","2019-08-11","2019-08-12"),
+("4","3","2019-08-24","2019-08-24"),
+("5","3","2019-08-21","2019-08-22"),
+("6","2","2019-08-11","2019-08-13"),
+("7","4","2019-08-09","2019-08-09");
+
+# 1179
+CREATE TABLE department3
+(
+    id  	 	    INT,
+    revenue		INT,
+    month 	VARCHAR(10)
+);
+
+INSERT INTO department3
+(id,revenue,month)
+VALUES 
+("1","8000","Jan"),
+("2","9000","Jan"),
+("3","10000","Feb"),
+("1","7000","Feb"),
+("1","6000","Mar");
+
+# 1193
+CREATE TABLE transactions
+(
+    id  	 	    INT,
+    country		VARCHAR(5),
+    state			VARCHAR(20),
+    amount	INT,
+    trans_date	date
+);
+
+INSERT INTO transactions
+(id,country,state,amount,trans_date)
+VALUES 
+("121","US","approved","1000","2018-12-18"),
+("122","US","declined","2000","2018-12-19"),
+("123","US","approved","2000","2019-01-01"),
+("124","DE","approved","2000","2019-01-07");
+
+# 1194
+CREATE TABLE players
+(
+    player_id  	 	    INT,
+    group_id				INT
+);
+
+INSERT INTO players 
+(player_id,group_id)
+VALUES 
+("15","1"),
+("25","1"),
+("30","1"),
+("45","1"),
+("10","2"),
+("35","2"),
+("50","2"),
+("20","3"),
+("40","3");
+
+
+CREATE TABLE matches
+(
+    match_id  	 	    INT,
+    first_player			INT,
+    second_player			INT,
+    first_score			INT,
+    second_score			INT
+);
+
+INSERT INTO matches 
+(match_id,first_player,second_player,first_score,second_score)
+VALUES 
+("1","15","45","3","0"),
+("2","30","25","1","2"),
+("3","30","15","2","0"),
+("4","40","20","5","2"),
+("5","35","50","1","1");
+
+# 1204
+CREATE TABLE queue
+(
+    person_id  	 	    INT,
+    person_name		VARCHAR(50),
+    weight			INT,
+    turn	INT
+);
+
+INSERT INTO queue 
+(person_id,person_name,weight,turn)
+VALUES 
+("5","George","250","1"),
+("3","John","350","2"),
+("6","Diego","400","3"),
+("2","Will","200","4"),
+("4","Thomas","175","5"),
+("1","James","500","6");
+
+# 1205
+CREATE TABLE transactions2
+(
+    id  	 	    INT,
+    country		VARCHAR(50),
+    state			VARCHAR(10),
+    amount	INT,
+    trans_date	DATE
+);
+
+INSERT INTO transactions2 
+(id,country,state,amount,trans_date)
+VALUES 
+("101","US","approved","1000","2019-05-18"),
+("102","US","declined","2000","2019-05-19"),
+("103","US","approved","3000","2019-06-10"),
+("104","US","approved","4000","2019-06-13"),
+("105","US","approved","5000","2019-06-15");
+
+CREATE TABLE chargebacks
+(
+    trans_id  	 	    INT,
+    trans_date	DATE
+);
+
+INSERT INTO chargebacks 
+(trans_id,trans_date)
+VALUES 
+("102","2019-05-29"),
+("101","2019-06-30"),
+("105","2019-09-18");
+
+# 1211
+CREATE TABLE queries
+(
+    query_name	VARCHAR(10),
+    result			VARCHAR(20),
+    position	 INT,
+    rating		INT
+);
+
+INSERT INTO queries 
+(query_name,result,position,rating)
+VALUES 
+("Dog","Golden Retriever","1","5"),
+("Dog","German Shepherd","2","5"),
+("Dog","Mule","200","1"),
+("Cat","Shirazi","5","2"),
+("Cat","Siamese","3","3"),
+("Cat","Sphynx","7","4");
+
+# 1212
+CREATE TABLE teams
+(
+    team_id  	 	    INT,
+    team_name	VARCHAR(30)
+);
+
+INSERT INTO teams 
+(team_id,team_name)
+VALUES 
+("10","Leetcode"),
+("20","NewYork"),
+("30","Atlanta"),
+("40","Chicago"),
+("50","Toronto");
+
+CREATE TABLE matches2
+(
+    match_id  	 	    INT,
+	host_team	INT,
+    guest_team 	INT,
+    host_goals	INT,
+    guest_goals	INT
+);
+
+INSERT INTO matches2
+(match_id,host_team,guest_team,host_goals,guest_goals)
+VALUES 
+("1","10","20","3","0"),
+("2","30","10","2","2"),
+("3","10","50","5","1"),
+("4","20","30","1","0"),
+("5","50","30","1","0");
+
+# 1225
+CREATE TABLE failed
+(
+    fail_date 	 	    date
+);
+
+INSERT INTO failed 
+(fail_date)
+VALUES 
+("2018-12-28"),
+("2018-12-29"),
+("2019-1-04"),
+("2019-1-05");
+
+CREATE TABLE succeeded
+(
+    success_date 	 	    date
+);
+
+INSERT INTO succeeded 
+(success_date)
+VALUES 
+("2018-12-30"),
+("2018-12-31"),
+("2019-1-01"),
+("2019-1-02"),
+("2019-1-03"),
+("2019-1-06");
+
+# 1241
+CREATE TABLE submissions
+(
+    sub_id 	 	    INT,
+    parent_id			INT
+);
+
+INSERT INTO submissions 
+(sub_id, parent_id)
+VALUES 
+("1",null),
+("2",null),
+("1",null),
+("12",null),
+("3","1"),
+("5","2"),
+("3","1"),
+("4","1"),
+("9","1"),
+("10","2"),
+("6","7");
+
+# 1251
+CREATE TABLE prices
+(
+    product_id 	 	    INT,
+    start_date	date,
+    end_date		date,
+    price			INT
+);
+
+INSERT INTO prices 
+(product_id, start_date, end_date, price)
+VALUES 
+("1","2019-02-17","2019-02-28","5"),
+("1","2019-03-01","2019-03-22","20"),
+("2","2019-02-01","2019-02-20","15"),
+("2","2019-02-21","2019-03-31","30");
+
+CREATE TABLE unitsold
+(
+    product_id 	 	    INT,
+    purchase_date	date,
+    units			INT
+);
+
+INSERT INTO unitsold 
+(product_id, purchase_date, units)
+VALUES 
+("1","2019-02-25","100"),
+("1","2019-03-01","15"),
+("2","2019-02-10","200"),
+("2","2019-03-22","30");
+
+# 1264
+CREATE TABLE friendship
+(
+    user1_id 	 	    INT,
+    user2_id 	 	    INT
+);
+
+INSERT INTO friendship 
+(user1_id, user2_id)
+VALUES 
+("1","2"),
+("1","3"),
+("1","4"),
+("2","3"),
+("2","4"),
+("2","5"),
+("6","1");
+
+CREATE TABLE likes
+(
+    user_id 	 	    INT,
+    page_id 	 	    INT
+);
+
+INSERT INTO likes 
+(user_id, page_id)
+VALUES 
+("1","88"),
+("2","23"),
+("3","24"),
+("4","56"),
+("5","11"),
+("6","33"),
+("2","77"),
+("3","77"),
+("6","88");
+
+# 1270 
+CREATE TABLE employee5
+(
+    employee_id 	 	    INT,
+    employee_name VARCHAR(10),
+    manager_id 	 	    INT
+);
+
+INSERT INTO employee5
+(employee_id, employee_name, manager_id)
+VALUES 
+("1","Boss","1"),
+("3","Alice","3"),
+("2","Bob","1"),
+("4","Daniel","2"),
+("7","Luis","4"),
+("8","Jhon","3"),
+("9","Angela","8"),
+("77","Robert","1");
+
+# 1280 
+CREATE TABLE subjects
+(
+    subject_name  VARCHAR(20)
+);
+
+INSERT INTO subjects 
+(subject_name)
+VALUES 
+("Math"),
+("Physics"),
+("Programming");
+
+CREATE TABLE examinations
+(
+	student_id		INT,
+    subject_name  VARCHAR(20)
+);
+
+INSERT INTO examinations 
+(student_id, subject_name)
+VALUES 
+("1", "Math"),
+("1", "Physics"),
+("1", "Programming"),
+("2", "Programming"),
+("1", "Physics"),
+("1", "Math"),
+("3", "Math"),
+("3", "Programming"),
+("3", "Physics"),
+("2", "Math"),
+("1", "Math"),
+("4","Math");
+
+# 1280 
+CREATE TABLE logs2
+(
+    log_id  INT
+);
+
+INSERT INTO logs2 
+(log_id)
+VALUES 
+("1"),
+("2"),
+("3"),
+("7"),
+("8"),
+("10");
+
+# 1294 
+CREATE TABLE countries
+(
+    country_id  INT,
+    country_name VARCHAR(20)
+);
+
+INSERT INTO countries 
+(country_id,country_name)
+VALUES 
+("2","USA"),
+("3","Australia"),
+("7","Peru"),
+("5","China"),
+("8","Morocco"),
+("9","Spain");
+
+CREATE TABLE weather2
+(
+    country_id  INT,
+    weather_state VARCHAR(20),
+    day date
+);
+
+INSERT INTO weather2 
+(country_id, weather_state, day)
+VALUES 
+("2","15","2019-11-01"),
+("2","12","2019-10-28"),
+("2","12","2019-10-27"),
+("3","-2","2019-11-10"),
+("3","0","2019-11-11"),
+("3","3","2019-11-12"),
+("5","16","2019-11-07"),
+("5","18","2019-11-09"),
+("5","21","2019-11-23"),
+("7","25","2019-11-28"),
+("7","22","2019-12-01"),
+("7","20","2019-12-02"),
+("8","25","2019-11-05"),
+("8","27","2019-11-15"),
+("8","31","2019-11-25"),
+("9","7","2019-10-23"),
+("9","3","2019-12-23");
+
+# 1303 
+CREATE TABLE employee6
+(
+    employee_id  INT,
+    team_id  INT
+);
+
+INSERT INTO employee6
+(employee_id,team_id)
+VALUES 
+("1","8"),
+("2","8"),
+("3","8"),
+("4","7"),
+("5","9"),
+("6","9");
+
+# 1308 
+CREATE TABLE scores
+(
+    player_name  VARCHAR(20),
+    gender  VARCHAR(10),
+	day  date,
+    score_points  INT
+);
+
+INSERT INTO scores
+(player_name,gender,day,score_points)
+VALUES 
+("Aron","F","2020-01-01","17"),
+("Alice","F","2020-01-07","23"),
+("Bajrang","M","2020-01-07","7"),
+("Khali","M","2019-12-25","11"),
+("Slaman","M","2019-12-30","13"),
+("Joe","M","2019-12-31","3"),
+("Jose","M","2019-12-18","2"),
+("Priya","F","2019-12-31","23"),
+("Priyanka","F","2019-12-30","17");
+
+# 1321 
+CREATE TABLE customer3
+(
+    customer_id  INT,
+    name  VARCHAR(10),
+	visited_on  date,
+    amount  INT
+);
+
+INSERT INTO customer3
+(customer_id,name,visited_on,amount)
+VALUES 
+("1","Jhon","2019-01-01","100"),
+("2","Daniel","2019-01-02","110"),
+("3","Jade","2019-01-03","120"),
+("4","Khaled","2019-01-04","130"),
+("5","Winston","2019-01-05","110"),
+("6","Elvis","2019-01-06","140"),
+("7","Anna","2019-01-07","150"),
+("8","Maria","2019-01-08","80"),
+("9","Jaze","2019-01-09","110"),
+("1","Jhon","2019-01-10","130"),
+("3","Jade","2019-01-10","150");
+
+# 1322 
+CREATE TABLE ads
+(
+    ad_id  INT,
+    user_id  INT,
+	action  VARCHAR(10)
+);
+
+INSERT INTO ads
+(ad_id,user_id,action)
+VALUES 
+("1","1","Clicked"),
+("2","2","Clicked"),
+("3","3","Viewed"),
+("5","5","Ignored"),
+("1","7","Ignored"),
+("2","7","Viewed"),
+("3","5","Clicked"),
+("1","4","Viewed"),
+("2","11","Viewed"),
+("1","2","Clicked");
+
+# 1327 
+CREATE TABLE products4
+(
+    product_id  INT,
+    product_name  VARCHAR(30),
+	product_category  VARCHAR(10)
+);
+
+INSERT INTO products4
+(product_id,product_name,product_category)
+VALUES 
+("1","Leetcode Solutions", "Book"),
+("2","Jewels of Stringology", "Book"),
+("3","HP", "Laptop"),
+("4","Lenovo", "Laptop"),
+("5","Leetcode Kit", "T-shirt");
+
+CREATE TABLE orders3
+(
+    product_id  INT,
+    order_date  date,
+	unit  INT
+);
+
+INSERT INTO orders3
+(product_id,order_date,unit)
+VALUES 
+("1","2020-02-05","60"),
+("1","2020-02-10","70"),
+("2","2020-01-18","30"),
+("2","2020-02-11","80"),
+("3","2020-02-17","2"),
+("3","2020-02-24","3"),
+("4","2020-03-01","20"),
+("4","2020-03-04","30"),
+("4","2020-03-04","60"),
+("5","2020-02-25","50"),
+("5","2020-02-27","50"),
+("5","2020-03-01","50");
+
+# 1336
+CREATE TABLE visits
+(
+    user_id 	 	    INT,
+    visit_date			date
+);
+
+INSERT INTO visits 
+(user_id, visit_date)
+VALUES 
+("1","2020-01-01"),
+("2","2020-01-02"),
+("12","2020-01-01"),
+("19","2020-01-03"),
+("1","2020-01-02"),
+("2","2020-01-03"),
+("1","2020-01-04"),
+("7","2020-01-11"),
+("9","2020-01-25"),
+("8","2020-01-28");
+
+CREATE TABLE transactions3
+(
+    user_id 	 	    INT,
+    transaction_date			date,
+    amount			INT
+);
+
+INSERT INTO transactions3
+(user_id, transaction_date, amount)
+VALUES 
+("1","2020-01-02","120"),
+("2","2020-01-03","22"),
+("7","2020-01-11","232"),
+("1","2020-01-04","7"),
+("9","2020-01-25","33"),
+("9","2020-01-25","66"),
+("8","2020-01-28","1"),
+("9","2020-01-25","99");
+
+# 1341
+CREATE TABLE movies
+(
+    movie_id 	 	    INT,
+    title			VARCHAR(10)
+);
+
+INSERT INTO movies 
+(movie_id, title)
+VALUES 
+("1","Avengers"),
+("2","Frozen 2"),
+("3","Joker");
+
+CREATE TABLE users3
+(
+    user_id 	 	    INT,
+    name			VARCHAR(10)
+);
+
+INSERT INTO users3 
+(user_id, name)
+VALUES 
+("1","Daniel"),
+("2","Monica"),
+("3","Maria"),
+("4","James");
+
+CREATE TABLE movie_rating
+(
+    movie_id 	 	    INT,
+    user_id			INT,
+    rating				INT,
+	created_at		date
+);
+
+INSERT INTO movie_rating 
+(movie_id, user_id, rating, created_at)
+VALUES 
+("1","1","3","2020-01-12"),
+("1","2","4","2020-02-11"),
+("1","3","2","2020-02-12"),
+("1","4","1","2020-01-01"),
+("2","1","5","2020-02-17"),
+("2","2","2","2020-02-01"),
+("2","3","2","2020-03-01"),
+("3","1","3","2020-02-22"),
+("3","2","4","2020-02-25");
+
+# 1350
+CREATE TABLE students2
+(
+    id 	 	     INT,
+    name			VARCHAR(10),
+    department_id			INT
+);
+
+INSERT INTO students2 
+(id, name, department_id)
+VALUES 
+("23","Alice","1"),
+("1","Bob","2"),
+("5","Jennifer","3"),
+("2","John","14"),
+("4","Jasmine","7"),
+("3","Steve","13"),
+("6","Luis","1"),
+("8","Jonathan","2"),
+("7","Daiana","33"),
+("11","Madelynn","1");
+
+# 1355
+CREATE TABLE friends
+(
+    id 	 	     INT,
+    name			VARCHAR(20),
+    activity			VARCHAR(20)
+);
+
+INSERT INTO friends 
+(id, name, activity)
+VALUES 
+("1","Jonathan D.","Eating"),
+("2","Jade W.","Singing"),
+("3","Victor J.","Singing"),
+("4","Elvis Q.","Eating"),
+("5","Daniel A.","Eating"),
+("6","Bob B.","Horse Riding");
+
+# 1364
+CREATE TABLE customer4
+(
+    customer_id 	 	     INT,
+    customer_name			VARCHAR(10),
+    email			VARCHAR(30)
+);
+
+INSERT INTO customer4 
+(customer_id, customer_name, email)
+VALUES 
+("1","Alice","alice@leetcode.com"),
+("2","Bob","bob@leetcode.com"),
+("13","John","john@leetcode.com"),
+("6","Alex","alex@leetcode.com");
+
+CREATE TABLE contacts
+(
+    user_id 	 	     INT,
+    contact_name			VARCHAR(10),
+    contact_email			VARCHAR(30)
+);
+
+INSERT INTO contacts 
+(user_id, contact_name, contact_email)
+VALUES 
+("1","Bob","bob@leetcode.com"),
+("1","John","john@leetcode.com"),
+("1","Jal","jal@leetcode.com"),
+("2","Omar","omar@leetcode.com"),
+("2","Meir","meir@leetcode.com"),
+("6","Alice","alice@leetcode.com");
+
+CREATE TABLE invoices
+(
+    invoice_id 	 	     INT,
+    price			 INT,
+    user_id			INT
+);
+
+INSERT INTO invoices 
+(invoice_id, price, user_id)
+VALUES 
+("77","100","1"),
+("88","200","1"),
+("99","300","2"),
+("66","400","2"),
+("55","500","13"),
+("44","60","6");
+
+# 1369
+CREATE TABLE useractivity
+(
+    username 	 	    VARCHAR(10),
+    activity			VARCHAR(10),
+    startDate			Date,
+    endDate			Date
+);
+
+INSERT INTO useractivity 
+(username, activity, startDate, endDate)
+VALUES 
+("Alice", "Travel","2020-02-12","2020-02-20"),
+("Alice", "Dancing","2020-02-21","2020-02-23"),
+("Alice", "Travel","2020-02-24","2020-02-28"),
+("Bob", "Travel","2020-02-11","2020-02-18");
+
+# 1378
+CREATE TABLE employee7
+(
+	id		INT,
+    name	VARCHAR(10)
+);
+
+INSERT INTO employee7
+(id, name)
+VALUES 
+("1","Alice"),
+("7","Bob"),
+("11","Meir"),
+("90","Winston"),
+("3","Jonathan");
+
+CREATE TABLE employeeuni
+(
+	id		INT,
+    unique_id	INT
+);
+
+INSERT INTO employeeuni 
+(id, unique_id)
+VALUES 
+("3","1"),
+("11","2"),
+("90","3");
+
+# 1384
+CREATE TABLE product5
+(
+    product_id  	 	    INT,
+    product_name		VARCHAR(10)
+);
+
+INSERT INTO product5
+(product_id,product_name)
+VALUES 
+("1","Nokia"),
+("2","Apple"),
+("3","Samsung");
+
+CREATE TABLE sales3
+(
+    product_id 	 	    INT,
+    period_start			VARCHAR(20),
+    period_end			Date,
+    average_daily_sales			INT
+);
+
+INSERT INTO sales3
+(product_id, period_start, period_end, average_daily_sales)
+VALUES 
+("1","2019-01-25","2019-02-28","100"),
+("2","2018-12-01","2020-01-01","10"),
+("3","2019-12-01","2020-01-31","1");
+
+# 1393
+CREATE TABLE stocks
+(
+    stock_name 	 	    VARCHAR(20),
+    operation			VARCHAR(5),
+    operation_day			INT,
+    price			INT
+);
+
+INSERT INTO stocks
+(stock_name, operation, operation_day, price)
+VALUES 
+("Leetcode", "Buy","1","1000"),
+("Corna Masks", "Buy","2","10"),
+("Leetcode", "Sell","5","9000"),
+("Handbags", "Buy","17","30000"),
+("Corna Masks", "Sell","3","1010"),
+("Corna Masks", "Buy","4","1000"),
+("Corna Masks", "Sell","5","500"),
+("Corna Masks", "Buy","6","1000"),
+("Handbags", "Sell","29","7000"),
+("Corna Masks", "Sell","10","10000");
+
+# 1398
+CREATE TABLE customers5
+(
+    customer_id			INT,
+    customer_name			VARCHAR(20)
+);
+
+INSERT INTO customers5
+(customer_id, customer_name)
+VALUES 
+("1","Daniel"),
+("2","Diana"),
+("3","Elizabeth"),
+("4","Jhon");
+
+CREATE TABLE orders4
+(
+    order_id			INT,
+    customer_id  	INT,
+    product_name			VARCHAR(1)
+);
+
+INSERT INTO orders4
+(order_id, customer_id, product_name)
+VALUES 
+("10","1","A"),
+("20","1","B"),
+("30","1","D"),
+("40","1","C"),
+("50","2","A"),
+("60","3","A"),
+("70","3","B"),
+("80","3","D"),
+("90","4","C");
+
+# 1407
+CREATE TABLE users4
+(
+    id			INT,
+    name			VARCHAR(20)
+);
+
+INSERT INTO users4
+(id, name)
+VALUES 
+("1","Alice"),
+("2","Bob"),
+("3","Alex"),
+("4","Donald"),
+("7","Lee"),
+("13","Jonathan"),
+("19","Elvis");
+
+CREATE TABLE rides
+(
+    id			INT,
+    user_id	INT,
+    distance	INT
+);
+
+INSERT INTO rides
+(id, user_id, distance)
+VALUES 
+("1","1","120"),
+("2","2","317"),
+("3","3","222"),
+("4","7","100"),
+("5","13","312"),
+("6","19","50"),
+("7","7","120"),
+("8","19","400"),
+("9","7","230");
+
+# 1412
+CREATE TABLE exam
+(
+    exam_id 	 	    INT,
+    student_id			INT,
+    score			INT
+);
+
+INSERT INTO exam
+(exam_id, student_id, score)
+VALUES 
+("10","1","70"),
+("10","2","80"),
+("10","3","90"),
+("20","1","80"),
+("30","1","70"),
+("30","3","80"),
+("30","4","90"),
+("40","1","60"),
+("40","2","70"),
+("40","4","80");
+
+# 1421
+CREATE TABLE NPV
+(
+    id 	 	    INT,
+    year			INT,
+    npv			INT
+);
+
+INSERT INTO NPV
+(id, year, npv)
+VALUES 
+("1","2018","100"),
+("7","2020","30"),
+("13","2019","40"),
+("1","2019","113"),
+("2","2008","121"),
+("3","2009","12"),
+("11","2020","99"),
+("7","2019","0");
+
+CREATE TABLE queries2
+(
+    id 	 	    INT,
+    year			INT
+);
+
+INSERT INTO queries2
+(id, year)
+VALUES 
+("1","2019"),
+("2","2008"),
+("3","2009"),
+("7","2018"),
+("7","2019"),
+("7","2020"),
+("13","2019");
+
+# 1435
+CREATE TABLE sessions
+(
+    session_id 	 	    INT,
+    duration			INT
+);
+
+INSERT INTO sessions
+(session_id, duration)
+VALUES 
+("1","30"),
+("2","299"),
+("3","340"),
+("4","580"),
+("5","1000");
