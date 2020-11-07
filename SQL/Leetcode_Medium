@@ -1,0 +1,1435 @@
+### 175 Combine Two Tables (Easy)
+select * from employee;
+select * from department;
+# Q --> Provides the following information for each employee, regardless if there is a location for each of those employee:
+# --- "Name, Job, Location"
+select a.Name, a.Job, b.Location from employee as a left join department as b on a.Dept_Id = b.Dept_Id;
+ 
+### 176  Second Highest Salary (Easy)
+select * from employee;
+# Q --> Get the second highest salary from the Employee table.
+# --- If there is no second highest salary, then the query should return null.
+# Method 1:
+select distinct Salary from employee order by Salary desc limit 1 offset 1;
+# Method 2: 
+ select ifnull(Salary,null) as SecondHighestSalary from employee where Salary < (select Salary from employee order by Salary desc limit 1) order by SecondHighestSalary desc limit 1;
+ # Method 3: max
+select max(Salary) as SecondHighestSalary from employee where Salary < (select max(Salary) from employee); # Note: Max function can automatically return null
+ # Method 4: join
+ select max(a.Salary) as SecondHighestSalary from employee as a, employee as b where a.Salary<b.Salary;
+ 
+ ### 177 Nth Highest Salary (Medium)
+select * from employee;
+# Question --> Get the n highest salary
+# Example: 4th highest --> offset = (4-1) = 3
+select distinct Salary from employee order by Salary desc limit 1 offset 3;
+ 
+### 178 Rank Salary (Medium)
+select * from employee;
+# Q --> Write a SQL query to rank salary. 
+# --- If there is a tie between two salaries, both should have the same ranking. 
+# --- Note that after a tie, the next ranking number should be the next consecutive integer value. In other words, there should be no "holes" between ranks.
+# --- Example: No gap after ranks 2 -> 1-2-2-3 not 1-2-2-4
+# Method 1:
+select a.Name, a.Salary, count(distinct b.Salary) as rank from employee as a, employee as b where a.Salary<=b.Salary group by a.Name, a.Salary order by rank;
+# Method 2:
+select a.Name, a.Salary, (select count(distinct b.Salary) as count from employee as b where a.Salary<=b.Salary) as rank from employee as a order by rank;
+ 
+### 180 Consecutive Numbers (Median)
+ select * from logs;
+ # Q --> Find all numbers that appear at least three times consecutively.
+ # Method 1:
+ select a.Id, a.Num from logs as a where a.Num = (select b.Num from logs as b where b.Id = a.Id+1) = (select c.Num from logs as c where c.Id = a.Id+2);
+ 
+ # Method 2:
+ # join three times need to use "left join" instead of "left join"
+ select distinct a.Num as ConsecutiveNums from logs as a inner join logs as b inner join logs as c on a.Id+1=b.Id and a.Id+2=c.Id where a.Num=b.Num=c.Num;
+
+# Method 3:
+# Step 1:
+Select id, Num, (@rank:= IF(@pre=Num, @rank+1, 1)) AS rank, @pre:=Num AS Previous from logs, (SELECT @pre:= NULL,@rank:=0) as a;
+ # Step 2:
+ select distinct c.Num, c.rank as ConsecutiveNums from 
+(Select id, Num, (@rank:= IF(@pre=Num, @rank+1, 1)) AS rank, @pre:=Num AS Previous from logs, (SELECT @pre:= NULL,@rank:=0) as a) as c
+where c.rank >= 3;
+# Note: remember the "distinct"
+
+### 181 Employees Earning More Than Their Managers (Easy)
+select * from employee; 
+# Q --> Finds out employees who earn more than their managers
+select a.Name as EMPLOYEE, a.Salary, b.Name as MANAGER, b.Salary from employee as a left join employee as b on a.Mgr_Id=b.Emp_Id where a.Salary>b.Salary;
+
+### 182 Duplicate Salaries (Easy)
+select * from employee; 
+# Q --> Find all duplicate salaries 
+select Salary from employee group by (Salary) having count(Salary)>1; 
+
+### 183 Department Without Employee Information (Easy)
+select * from employee; 
+select * from department;
+# Q --> Find all departments which don't have any employee information
+# Method 1:
+select * from department where Dept_id not in (select distinct Dept_id from employee); 
+# Method 2:
+select a.Dept_Id from department as a left join employee as b on a.Dept_Id=b.Dept_Id where b.Dept_Id is NULL;
+
+### 184 Department Highest Salary (Median)
+select * from employee; 
+# Q --> Find employees who have the highest salary in each of the departments.
+select Name, Salary, Dept_Id from employee where (Salary, Dept_Id) in (select max(Salary) as max, Dept_Id from employee group by Dept_Id);
+
+### 185 Department Top Three Salaries (Hard)
+select * from employee;
+# Q --> Find employees who earn the top three salaries in each of the department. 
+select * from (
+select a.Name, a.Salary, a.Dept_id, (select count(distinct b.Salary) from employee as b where b.Salary >= a.Salary and a.Dept_id = b.Dept_id) as rank from employee as a) c
+where c.rank <= 3 order by 3, 4;
+
+### 196 Delete Duplicate Emails (Easy)
+select * from person;
+# Q --> Delete all duplicate emails, keeping only unique emails based on its smallest Id.
+SET SQL_SAFE_UPDATES = 1; # choose safe update mode
+delete from person where Id not in (select min(Id) as sal from person group by Email); # Incorrect way
+# You can't specify target table 'employee' with the FROM clause
+# Solve --> Add another "select"
+delete from person where Id not in (select sal from (select Email, min(Id) as sal from person group by Email) as a); # Correct way
+ 
+### 197 Rising Temperature (Easy)
+select * from weather;
+# Q --> Find all hiredates with higher temperature compared to its previous (yestearday's) dates.
+select a.* from weather as a, weather as b where datediff(a.RecordDate,b.RecordDate)=1 and a.Temperature>b.Temperature; 
+# datediff(date1, date2) --> "left - right" OR "where TIMESTAMPDIFF(Day, date2, date1)=1"  ---> "right - left"
+
+# Note: We can't directly use a.hiredate = b.hiredate+1 because 31+1 will be 32 instead of first day of the month
+select date("2020-01-31"), date("2020-01-31")+1 from weather;
+
+### 262 Trips and Users (Hard)
+select * from trips;
+select * from users;
+# Q --> Find the cancellation rate of requests made by unbanned users on 2013/10/1, 2013/10/2 and 2013/10/3
+# Method 1:
+# Step One: Remove all the requests when Banned = "Yes"
+select Client_Id, Driver_Id, Status, Request_at from trips 
+where Client_Id not in (select Users_Id from Users where Banned = "Yes") and Driver_Id not in (select Users_Id from Users where Banned = "Yes");
+
+# Step Two: Cancellation Rate = # of canceled requests / # of total requests
+select Request_at as Day, round(sum(case when Status != "completed" then "1" else "0" end) /count(*),2) as "Cancellation Rate" from trips 
+where Client_Id not in (select Users_Id from Users where Banned = "Yes") and Driver_Id not in (select Users_Id from Users where Banned = "Yes") 
+group by Request_at;
+
+# Method 2:
+# Step One:
+select a.Client_Id, a.Driver_Id, if(a.Status = "completed",0,1) as cancel, a.Request_at, b.Banned, b.Role, c.Banned, c.Role from trips as a 
+left join users as b on a.Client_Id = b.Users_Id left join users as c on a.Driver_Id = c.Users_Id where b.Banned  = "No" and c.Banned  = "No" ;
+
+# Step Two:
+select Request_at, round(sum(if(a.Status = "completed",0,1)) /  count(*),2) as "Cancellation Rate" from trips as a 
+left join users as b on a.Client_Id = b.Users_Id left join users as c on a.Driver_Id = c.Users_Id where b.Banned  = "No" and c.Banned  = "No" 
+group by Request_at;
+
+### 511 Game Play Analysis I (Easy)
+select * from game;
+# Q --> Reports the first login date for each player.
+select player_id, min(event_date) from game group by player_id;
+
+### 512 Game Play Analysis II (Easy)
+select * from game;
+# Q --> Reports the device that is first logged in for each player.
+# First method: join
+select a.player_id, b.device_id from 
+(select player_id, min(event_date) as event_date from game group by player_id) as a 
+left join game as b on a.player_id=b.player_id and a.event_date=b.event_date;
+# Second method: where
+select a.player_id, a.device_id from game as a where (a.player_id, a.event_date) in 
+(select player_id, min(event_date) from game group by player_id);
+
+### 534 Game Play Analysis III (Medium)
+select * from game;
+# Q -->  Reports for each player and date, how many games played so far by the player.
+select a.*, (select sum(b.games_played) from game as b where b.event_date <= a.event_date and a.player_id = b.player_id) as cumulated_games_played from game as a;
+
+### 550 Game Play Analysis IV (Medium)
+select * from game;
+# Q --> Reports the fraction of players that logged in again on the day after the day they first logged in, rounded to 2 decimal places. 
+# --- Fraction equal = # of players that logged in for at least two consecutive days starting from their first login date / total number of players.
+select round(a.con2 / b.total,2) as fraction from 
+(select count(distinct player_id) as con2 from game where (player_id,event_date) in (select player_id, min(event_date) + interval 1 day from game group by player_id)) as a,
+(select count(distinct player_id) as total from game) as b;
+
+# 569 Median Employee Salary (Hard)
+select * from salary_median;
+# Q --> Find the median salary of each company
+# Method 1:
+# Step 1:
+select a.Company, a.Salary, b.Salary, sign(b.Salary-a.Salary) as sign from salary_median as a inner join salary_median as b 
+where a.Company=b.Company order by 1,2;
+# Step 2:
+select a.Company, a.Salary, sum(sign(b.Salary-a.Salary)) as sign from salary_median as a inner join salary_median as b 
+where a.Company=b.Company group by a.Company, a.Salary order by 1;
+# Step 3:
+select a.Company, a.Salary, sum(sign(b.Salary-a.Salary)) as sign from salary_median as a inner join salary_median as b 
+where a.Company=b.Company group by a.Company, a.Salary having abs(sign) <= 1 order by 1;
+# Step 4:
+select c.Company, avg(c.Salary) as Average from (
+select a.Company, a.Salary, sum(sign(b.Salary-a.Salary)) as sign from salary_median as a inner join salary_median as b 
+where a.Company=b.Company group by a.Company, a.Salary having abs(sign) <= 1) c group by c.Company;
+# WRONG: This method doesn't work for B: 10-20-30-30 or D: 10-20-20-40-50 (when there is a duplicate number near the median) -> B should be 25 and D should be 20
+
+# Method 2: Works for all the possible situations --> disadvantage: can't use group by 
+SET @rowindex := -1;
+
+# Step one:
+select @rowindex:=@rowindex + 1 as rowindex, Salary from salary_median where Company="B" order by Salary;
+
+# Step two:
+select avg(b.Salary) from
+(select @rowindex:=@rowindex + 1 as rowindex, Salary from salary_median where Company="D" order by Salary) AS b
+where b.rowindex in (FLOOR(@rowindex / 2) , CEIL(@rowindex / 2));
+
+# 570 Managers with at Least 5 Direct Reports (Medium)
+select * from employee;
+# Q --> Finds out managers with at least 3 direct report
+select b.Name from employee as a inner join employee as b on a.Mgr_Id=b.Emp_Id group by b.Name having count(*)>=3;
+
+# 571 Find Median Given Frequency of Numbers (Hard)
+select * from numbers;
+# Method 1:
+# Step one:
+select a.Number, sum(b.Frequency) as Fre from numbers as a inner join numbers as b on a.Number>=b.Number group by a.Number;
+# Step two: The median will always stay in the average of the following two order numbers
+select floor((sum(Frequency)+1)/2) as floor, ceil((sum(Frequency)+1)/2) as ceil from numbers;
+# Step three: Find out which values belong to these two numbers
+select avg(Number) as median from (
+(select a.Number, sum(b.Frequency) as Fre from numbers as a inner join numbers as b on a.Number>=b.Number group by a.Number
+having Fre >= (select floor((sum(Frequency)+1)/2) from numbers) order by 1 limit 1)
+union all
+(select a.Number, sum(b.Frequency) as Fre from numbers as a inner join numbers as b on a.Number>=b.Number group by a.Number
+having Fre >= (select ceil((sum(Frequency)+1)/2) from numbers) order by 1  limit 1)) x;
+
+# Method 2:
+# Step 1:
+# --- fre1 -> how many numbers are smaller
+# --- fre2 -> how many numbers are bigger
+select n.Number, n.Frequency, (select sum(n2.Frequency) from Numbers n2 where n.Number > n2.Number) as fre1,
+(select sum(n3.Frequency) from Numbers n3 where n.Number < n3.Number) as fre2 from numbers n;
+# Step 2: 
+# --- abs -> find the distance between the number and median
+select a.Number, a.Frequency, a.fre1-a.fre2, abs(a.fre1-a.fre2) as abs from (
+select n.Number, n.Frequency, (select sum(n2.Frequency) from Numbers n2 where n.Number > n2.Number) as fre1,
+(select sum(n3.Frequency) from Numbers n3 where n.Number < n3.Number) as fre2 from numbers n) a;
+# Step 3: 
+# --- Filter: Frequency >= abs -> to see whether the distance is within the number's frequency
+# --- Get the average at the end
+select avg(n.Number) as median from numbers n where n.Frequency >= 
+abs((select sum(n2.Frequency) from Numbers n2 where n.Number > n2.Number) - (select sum(n3.Frequency) from Numbers n3 where n.Number < n3.Number));
+
+# 574 Winning Candidate (Medium)
+select * from candidate; 
+select * from vote;
+# Question: Find the name of the winning candidate, the above example will return the winner B --- Assume there is at most one winning candidate.
+select Name from candidate where Id = (select CandidateId from vote group by CandidateId order by count(*) desc limit 1);
+
+### 577 Employee Bonus (Easy)
+select * from employee;
+select * from bonus;
+# Question: Select all employee''s name and bonus whose bonus is < 1000
+select a.name, a.job, b.job, b.bonus from employee as a left join bonus as b on a.job=b.job where b.bonus < 1000 or b.bonus is null;
+# Note: remember to include the null (no bonus) and choose a.job instead of b.job
+
+### 578 Get Highest Answer Rate Question (Medium)
+select * from survey_log;
+# Question: Identify the question which has the highest answer rate.
+# --- Answer rate = # of answer / $ of show
+# --- question 285 has answer rate 1/1, while question 369 has 0/1 answer rate, so output 285.
+# Method 1:
+select a.question_id as survey_log from
+(select question_id, 
+SUM(CASE WHEN action='answer' THEN 1 ELSE 0 END) AS num_answer,
+SUM(CASE WHEN action='show' THEN 1 ELSE 0 END) AS num_show
+from survey_log group by question_id) as a
+order by (num_answer / num_show) DESC limit 1;
+
+# Method 2:
+select question_id as survey_log from survey_log group by question_id
+order by SUM(IF(action='answer', 1, 0)) / SUM(IF(action='show', 1, 0)) desc limit 1;
+
+### 579 Find Cumulative Salary of an Employee (Hard)
+select * from employee2;
+# Question: Get the cumulative sum of an employee's salary over a period of 3 months but exclude the most recent month.
+ select * from (
+  select a.Id, a.Month, (select sum(b.Salary) from 
+	(select * from employee2 where (Id, Month) in (select Id, max(Month)-1 from employee2 group by Id)
+	or (Id, Month) in (select Id, max(Month)-2 from employee2 group by Id)
+	or (Id, Month) in (select Id, max(Month)-3 from employee2 group by Id)) as b where a.Id=b.Id and b.Month<=a.Month) as Salary
+from employee2 as a) c
+where Salary is not null and  (Id, Month) not in (select Id, max(Month) from employee2 group by Id);
+
+### 580 Count Student Number in Departments (Medium)
+select * from student;
+select * from department2;
+# Q --> Print the respective department name and number of students majoring in each department for all departments (even ones with no current students).
+# --- Sort your results by descending number of students
+# --- If two or more departments have the same number of students, then sort those departments alphabetically by department name.
+select a.dept_name, count(distinct b.student_id) as student_number from department2 as a left join student as b on a.dept_id=b.dept_id
+group by a.dept_name order by 2 desc;
+
+### 584 Find Customer Referee (Easy)
+select * from customer;
+# Question: Return the list of customers NOT referred by the person with id '2'. 
+# --- Include those has no referee.
+select name from customer where referee_id != 2 or referee_id is null;
+
+### 585 Investments in 2016 (Medium)
+select * from insurance;
+# Question: Print the sum of all total investment values in 2016 (TIV_2016), for all policy holders who meet the following criteria:
+# --- Have the same TIV_2015 value as one or more other policyholders.
+# --- Are not located in the same city as any other policyholder (i.e.: the (latitude, longitude) attribute pairs must be unique).
+select SUM(TIV_2016) as TIV_2016 from insurance
+where TIV_2015 in (select TIV_2015 from insurance group by TIV_2015 HAVING COUNT(*) > 1)
+and (LAT, LON) in (select LAT, LON from insurance group by LAT, LON HAVING COUNT(*) = 1);
+
+### 586 Customer Placing the Largest Number of Orders (Easy)
+select * from customer2;
+# --- Product_key is not related
+# Q1 ---> Find the customer who has placed the largest number of orders.
+# --- It is guaranteed that exactly one customer will have placed more orders than any other customer.
+select customer_id from customer2 group by customer_id order by count(*) desc limit 1;
+
+# Question: What if more than one customer have the largest number of orders, can you find all the customer2 in this case?
+select customer_id from customer2 group by customer_id 
+having count(*) = (select count(*) as count from customer2 group by customer_id order by count desc limit 1);
+
+### 595 Big Countries (Easy)
+select * from world;
+# Question: Output big countries' name, population and area.
+# --- A country is big if it has an area of bigger than 3 million square km or a population of more than 25 million.
+select name, population, area from world where area>3000000 or population >25000000;
+
+### 596 Classes More Than 5 Students (Easy)
+select * from courses;
+# Question: List out all classes which have more than or equal to 5 students.
+ select class from courses group by class having count(distinct student)>5;
+# Note: Add distinct to remove the possible duplicate student
+
+### 597 Friend Requests I: Overall Acceptance Rate (Easy)
+select * from friend_request;
+select * from request_accepted; 
+# Question: Find the overall acceptance rate of requests rounded to 2 decimals
+# Rule 1 -> Acceptance rate of requests = # of acceptance / # of requests 
+# Rule 2 -> The accepted requests are not necessarily from the table friend_request -> simply count the total accepted requests
+# Rule 3 -> The ‘duplicated’ requests or acceptances are only counted once. -> DISTINCT
+# Rule 4 -> If there is no requests at all, you should return 0.00 as the accept_rate. -> IFNULL()
+# Formula ->>> # acceptance rate = # of distinct (requester_id, accepter_id) /  # of distinct (sender_id, send_to_id)
+
+# Method One:
+# Step one: 
+select a.*, b.* from friend_request as a left join request_accepted as b on a.sender_id = b.requester_id and a.send_to_id = b.accepter_id;
+# Step two:
+select round(ifnull(count(distinct b.requester_id, b.accepter_id) / count(distinct a.sender_id, a.send_to_id),0),2) as acceptance_rate 
+from friend_request as a left join request_accepted as b on a.sender_id = b.requester_id and a.send_to_id = b.accepter_id; 
+
+# Method Two:
+select (round(
+	ifnull( # rule 4
+		(select count(*) from (select distinct requester_id, accepter_id from request_accepted) as a)/ 
+		(select count(*) from (select distinct sender_id, send_to_id from friend_request) as b) # rule 3
+		,0) ,2)) as acceptance_rate;
+
+### 601 Human Traffic of Stadium (Hard)
+select * from stadium;
+# Question: Display the records which have 3 or more consecutive rows and the amount of people more than 100 (inclusive).
+# Method One:
+select * from stadium where id >= any (
+select id from (select a.id, a.visit_date as day1, a.people, 
+(select count(b.people) from stadium as b where datediff(b.visit_date,a.visit_date)=1 and a.people>=100 and b.people>=100) as day2,
+(select count(c.people) from stadium as c where datediff(c.visit_date,a.visit_date)=2 and a.people>=100 and c.people>=100) as day3
+from stadium as a) d where day2=1 and day3=1) and
+ id <= any (
+select id+3 from (select a.id, a.visit_date as day1, a.people, 
+(select count(b.people) from stadium as b where datediff(b.visit_date,a.visit_date)=1 and a.people>=100 and b.people>=100) as day2,
+(select count(c.people) from stadium as c where datediff(c.visit_date,a.visit_date)=2 and a.people>=100 and c.people>=100) as day3
+from stadium as a) d where day2=1 and day3=1);
+
+# Method two:
+# Step one:
+select * from stadium as a, stadium as b, stadium as c 
+where datediff(b.visit_date, a.visit_date)=1 and datediff(c.visit_date,b.visit_date)=1 and a.people>=100 and b.people>100 and c.people>100;
+# Step two:
+select * from stadium 
+where id in (select a.id from stadium as a, stadium as b, stadium as c 
+where datediff(b.visit_date, a.visit_date)=1 and datediff(c.visit_date,b.visit_date)=1 and a.people>=100 and b.people>100 and c.people>100)
+or id in (select b.id from stadium as a, stadium as b, stadium as c 
+where datediff(b.visit_date, a.visit_date)=1 and datediff(c.visit_date,b.visit_date)=1 and a.people>=100 and b.people>100 and c.people>100)
+or id in (select c.id from stadium as a, stadium as b, stadium as c 
+where datediff(b.visit_date, a.visit_date)=1 and datediff(c.visit_date,b.visit_date)=1 and a.people>=100 and b.people>100 and c.people>100);
+
+# Better version for method two:
+select distinct a.* from stadium as a, stadium as b, stadium as c 
+where (
+	(datediff(b.visit_date, a.visit_date)=1 and datediff(c.visit_date,a.visit_date)=2) or # a is the first day
+    (datediff(a.visit_date, b.visit_date)=1 and datediff(c.visit_date, a.visit_date)=1) or # a is the second day
+    (datediff(a.visit_date, b.visit_date)=1 and datediff(a.visit_date,c.visit_date)=2)) # a is the third day
+and a.people>=100 and b.people>100 and c.people>100
+order by 1;
+
+# Better version based on method one:
+select * from stadium where 
+id >= any (select a.id from stadium as a, stadium as b, stadium as c 
+where datediff(b.visit_date, a.visit_date)=1 and datediff(c.visit_date,b.visit_date)=1 and a.people>=100 and b.people>100 and c.people>100) 
+and
+id <= any (select a.id+3 from stadium as a, stadium as b, stadium as c 
+where datediff(b.visit_date, a.visit_date)=1 and datediff(c.visit_date,b.visit_date)=1 and a.people>=100 and b.people>100 and c.people>100);
+
+### 602 Friend Requests II: Who Has the Most Friends (Medium)
+select * from request_accepted; 
+# Question: Find the the people who has most friends and the most friends number. 
+# There is only 1 people having the most friends.
+# The friend request could only been accepted once -> no multiple records with the same requester_id and accepter_id value.                    
+select requester_id as id, count(distinct accepter_id) as count 
+from (select requester_id, accepter_id from request_accepted 
+		  union all 
+          select accepter_id, requester_id from request_accepted) a 
+group by requester_id order by 2 desc limit 1;
+
+# 603 Consecutive Available Seats (Easy)
+select * from seat;
+# Question: Query all the consecutive available seats order by the seat_id
+# --- The seat_id is an auto increment int, and free is bool ('1' means free, and '0' means occupied.).
+# --- Consecutive available seats are more than 2 (inclusive) seats consecutively available
+# Method 1:
+select seat_id from seat where 
+seat_id in
+(select a.seat_id from seat as a, seat as b where b.seat_id = a.seat_id+1 and a.free=b.free=1)
+or seat_id in
+(select a.seat_id from seat as a, seat as b where b.seat_id = a.seat_id-1 and a.free=b.free=1);
+# Remember to consider the last seat_id -> 5
+
+# Method 2:
+select distinct a.seat_id from seat as a, seat as b where (b.seat_id = a.seat_id+1 or  b.seat_id = a.seat_id-1) and a.free=b.free=1;
+
+# Method 3:
+select distinct a.seat_id from seat as a, seat as b where abs(b.seat_id - a.seat_id)=1 and a.free = b.free = 1;
+
+### 607 Sales Person (Easy)
+select * from salesperson;
+select * from orders;
+select * from company;
+# Question: Output all the names in the table salesperson, who didn’t have sales to company 'RED'.
+# Method one -> WRONG -> In table "orders", the sales_id 4 have both com_id 1 ("RED") and 3, which shouldn't be included
+select a.name,a.sales_id,b.com_id,c.name from salesperson as a left join orders as b on a.sales_id=b.sales_id left join company as c on b.com_id=c.com_id;
+# Solved:
+select a.name, sum(if(c.name="RED",1,0)) as red from salesperson as a left join orders as b on a.sales_id=b.sales_id left join company as c on b.com_id=c.com_id
+group by a.name having red=0;
+
+# Second method: -> CORRECT
+select c.name from salesperson as c where sales_id not in (select a.sales_id from orders as a left join company as b on a.com_id = b.com_id where b.name="RED");
+# Remember add "as c" to refer salesperson
+
+### 608 Tree Node (Mediun)
+select * from tree;
+# Question: Print the node id and the type of the node. Sort your output by the node id. 
+# --- Each node in the tree can be one of three types -> Leaf / Root / Inner
+# --- Node '1' is root node, because its parent node is NULL and it has child node '2' and '3'.
+# --- Node '2' is inner node, because it has parent node '1' and child node '4' and '5'.
+# --- Node '3', '4' and '5' is Leaf node, because they have parent node and they don't have child node.
+# Method 1:
+# step one:
+select a.*, b.p_id from tree as a left join tree as b on a.id=b.p_id;
+
+# step two:
+select distinct a.id,
+(case when a.p_id is null then "Root" when b.p_id is null then "Leaf" else "Inner" end) as Type
+from tree as a left join tree as b on a.id=b.p_id;
+
+# Method 2: -> we can get Inner directly if it includes in p_id
+select id, if(ISNULL(p_id), 'Root', if(id in (select p_id from tree), 'Inner', 'Leaf')) as Type from tree;
+
+### 610 Triangle Judgement (Easy)
+select * from triangle;
+# Question: Writing a query to judge whether these three sides can form a triangle
+select *, case when x+y>z and x+z>y and z+y>x then "Yes" else "No" end as Triangle from triangle; 
+
+### 612 Shortest Distance in a Plane (Medium)
+select * from point_2d;
+# Question: Find the shortest distance between these points rounded to 2 decimals.
+select min(shortest) from (
+select round( power( power((a.x-b.x),2) + power((a.y-b.y),2) , 1/2), 2) as shortest 
+from point_2d as a inner join point_2d as b) c where shortest != 0;
+
+### 613 Shortest Distance in a Line (Easy)
+select * from point;
+# Question: Find the shortest distance between two points in these points.
+select min(a.x-b.x) from point as a inner join point as b on a.x > b.x;
+
+### 614 Second Degree Follower (Medium)
+select * from follow;
+# Question: Get the amount of each follower’s follower if he/she has one. -> group by follower not followee
+# Both B and D exist in the follower list, when as a followee, B's follower is C and D, and D's follower is E. A does not exist in follower list.
+# Step one:
+select a.*, b.* from follow as a left join follow as b on a.follower=b.followee;
+# Step two:
+select a.follower, count(distinct b.follower) as num from follow as a left join follow as b on a.follower=b.followee where b.followee is not null
+group by a.follower;
+
+# 615 Average Salary: Departments VS Company (Hard)
+select * from salary;
+select * from employee3;
+# Question: Display the comparison result (higher/lower/same) of the average salary of employees in a department to the company's average salary (By Month)
+# Example (in March)
+# The average salary for company is (9000+6000+10000)/3 = 8333
+# The average salary for department ‘2’ is (6000+10000)/2 = 8000, which is the average of employee_id ‘2’ and ‘3’. So the comparison result is ‘lower’ since 8000 < 8333.33
+
+select DATE_FORMAT(c.date1,"%Y-%m") as pay_month, c.department_id, 
+case when d.avg_month>avg_dept_month then "higher" when d.avg_month=avg_dept_month then "same" else "lower" end as comparison
+from
+(select a.pay_date as date1, b.department_id, avg(amount) as avg_dept_month from salary as a left join employee3 as b on a.employee_id=b.employee_id group by pay_date, department_id) as c 
+left join 
+(select a.pay_date as date2, avg(amount) as avg_month from salary as a left join employee3 as b on a.employee_id=b.employee_id group by pay_date) as d
+on c.date1=d.date2;
+
+# 618 Students Report By Geography (Hard)
+select * from geography;
+# Question: Pivot the continent column in this table so that each name is sorted alphabetically and displayed underneath its corresponding continent. 
+# --- The output headers should be America, Asia and Europe respectively. 
+# --- It is guaranteed that the student number from America is no less than either Asia or Europe.
+
+# Step one: 
+select a.name, continent, (select count(b.name) from geography as b where a.continent=b.continent) as id from geography as a order by 2; # Note: We need add a.name>b.name to distinguish the name
+select a.name, continent, (select count(b.name) from geography as b where a.name>b.name and a.continent=b.continent) as id from geography as a order by 2;
+
+# Step two:
+select
+max(case when continent="America" then name end) as America ,
+max(case when continent="Asia" then name end) as Asia ,
+max(case when continent="Europe" then name end) as Europe from
+(select a.name, continent, (select count(b.name) from geography as b where a.name>b.name and a.continent=b.continent) as id from geography as a) c
+group by c.id;
+
+### 619 Biggest Single Number (Easy)
+select * from numbers3;
+# Question: Find the biggest number, which only appears once.
+select num from numbers3 group by num having count(*)=1 order by num desc limit 1;
+
+### 620 Not Boring Movies (Easy)
+select * from cinema;
+# Question: Output movies with an odd numbered ID and a description that is not 'boring'. Order the result by rating.
+select * from cinema where id % 2 = 1 and description != "boring" order by rating desc;
+# or mod(id,2)=1
+
+### 626. Exchange Seats (Medium)
+select * from seat;
+# Question: Change seats for the adjacent people. (Ignore the column: "free")
+# When id = even -> id - 1; when id = odd -> id +1
+# For the query, make sure it works for table 'seat2' as well -> when count(*) is odd, keep the last id
+
+# Method 1
+select b.seat_id-1 as seat_id, b.name from seat as a, seat as b where a.seat_id+1 = b.seat_id and mod(a.seat_id,2)=1
+union all
+select b.seat_id+1 as seat_id, b.name from seat as a, seat as b where a.seat_id-1 = b.seat_id and mod(a.seat_id,2)=0
+union all
+select distinct a.seat_id as seat_id, a.name from seat as a, seat as b where mod(a.seat_id,2)=1 and a.seat_id = (select count(*) from seat);
+
+# Method 2:
+select (case 
+	when mod(seat_id,2)=0 then seat_id-1
+	when mod(seat_id,2)=1 and seat_id = (select count(*) from seat) then seat_id
+	else seat_id+1 end) as seat_id, name 
+from seat order by 1;
+
+# We can put mod(seat_id,2) to the front of case
+select (case mod(seat_id,2) 
+when 0 then seat_id-1 
+when 1 and seat_id=(select count(*) from seat) then seat_id 
+else seat_id+1 end) as seat_id, name from seat order by 1;
+
+###  627 Swap Salary (Easy)
+select * from salary;
+# Question: Swap all f and m values (i.e., change all f values to m and vice versa) with a single update statement 
+# --- DO NOT write any select statement for this problem.
+SET SQL_SAFE_UPDATES = 0; 
+
+UPDATE salary SET gender = (case when gender="m" then "f" else "m" end);
+
+### 1045 Customers Who Bought All Products (Medium)
+select * from customer2;
+select * from product;
+# Question: Provides the customer ids from the Customer table that bought ALL the products in the Product table.
+select customer_id from customer2
+group by customer_id
+having count(distinct product_key) = (select count(*) from product);
+
+### 1050 Actors and Directors Who Cooperated At Least Three Times (Easy)
+select * from actordirector;
+# Question: Provides the pairs (actor_id, director_id) where the actor have cooperated with the director at least 3 times.
+select actor_id, director_id from actordirector group by actor_id, director_id having count(*)>=3;
+
+### 1068 Product Sales Analysis I (Easy)
+select * from sales;
+select * from product22;
+# Question: Reports all product names of the products in the Sales table along with their selling year and price.
+select b.product_name, a.year,a.price from sales as a left join product22 as b on a.product_id = b.product_id;
+
+### 1069 Product Sales Analysis II (Easy)
+select * from sales;
+# Q --> Reports the total quantity sold for every product id.
+select product_id, sum(quantity) as total_quantity from sales group by product_id;
+
+### 1070 Product Sales Analysis III (Medium)
+select * from sales;
+# Question: Selects the product id, year, quantity, and price for the first year of every product sold.
+select product_id, year as first_year, quantity, price from sales 
+where (product_id, year) in (select product_id, min(year) from sales group by product_id);
+
+### 1075 Project Employees I (Easy)
+select * from project4;
+select * from employee4;
+# Question: Reports the average experience years of all the employees for each project, rounded to 2 digits.
+select a.project_id, round(avg(b.experience_years),2) as average_years from project4 as a 
+left join employee4 as b on a.employee_id=b.employee_id group by a.project_id;
+
+### 1076 Project Employees II (Easy)
+select * from project4;
+select * from employee4;
+# Question: Reports all the projects that have the most employees.
+select project_id from project4 group by project_id having count(employee_id) = 
+	(select count(employee_id) from project4 group by project_id order by count(employee_id) desc limit 1);
+# Remember to consider the case when there are more than one project have the most employees
+
+### 1077 Project Employees III (Medium)
+select * from project4;
+select * from employee4;
+# Question: Reports the most experienced employees in each project.
+select a.project_id, a.employee_id from project4 as a left join employee4 as b on a.employee_id=b.employee_id
+where (a.project_id,b.experience_years) in
+(select a.project_id, max(b.experience_years) from project4 as a left join employee4 as b on a.employee_id=b.employee_id group by a.project_id)
+order by 1;
+
+### 1082 Sales Analysis I (Easy)
+select * from sales2;
+# Question: Reports the best seller by total sales price, If there is a tie, report them all.
+select seller_id, sum(price) as total_sales from sales2 group by seller_id
+having sum(price) = (select sum(price) from sales2 group by product_id order by sum(price) desc limit 1);
+
+### 1083 Sales Analysis II (Easy)
+select * from product2;
+select * from sales2;
+# Question: Reports the buyers who have bought S8 but not iPhone. 
+select a.*, b.* from sales2 as a left join product2 as b on a.product_id=b.product_id;
+
+select a.buyer_id from sales2 as a left join product2 as b on a.product_id=b.product_id where b.product_name = "S8" and b.product_name != "iPhone";
+
+### 1084 Sales Analysis III (Easy)
+select * from product2;
+select * from sales2;
+# Question: Reports the products that were ONLY sold in spring 2019. (between 2019-01-01 and 2019-03-31 inclusive.)
+# Method 1:
+select a.product_id,  b.product_name from sales2 as a left join product2 as b on a.product_id=b.product_id group by a.product_id, b.product_name having min(a.sale_date)>"2019-01-01" and max(a.sale_date)<"2019-03-31";
+# Remember the product_id 2 has two sale_date, one is in the range but another one not, so we can't use the between directly
+select * from sales2 where product_id=200;
+#Method 2:
+select distinct a.product_id, b.product_name from sales2 as a left join product2 as b on a.product_id = b.product_id
+where a.sale_date between '2019-01-01' and '2019-03-31' # Step one: Find the all the products that brought in this season
+and b.product_id not in # Step two: From this products, find which one doens't sell out of this season
+(select b.product_id from sales2 as a left join product2 as b on a.product_id = b.product_id where a.sale_date not between '2019-01-01' and '2019-03-31'); 
+
+### 1097 Game Play Analysis V (Hard)
+select * from activity;
+# Question: Reports for each install date, the number of players that installed the game on that day and the day 1 retention.
+# --- We define the install date of a player to be the first login day of that player.
+# --- We also define day 1 retention of some date X to be the number of players whose install date is X and they logged back in on the day right after X, divided by the number of players whose install date is X, rounded to 2 decimal places.
+# Method one:
+select player_id, min(event_date) as date from activity group by player_id;
+
+select a.date, round(count(b.player_id) / count(a.player_id),2) as retention_rate from (select player_id, min(event_date) as date from activity group by player_id) a 
+left join (select player_id, event_date - interval 1 day from activity where (player_id, event_date) in (select player_id, event_date+1 from activity)) as b
+on a.player_id=b.player_id group by a.date;
+
+# Method two:
+select a.*, b.* from (select distinct player_id, min(event_date) as date1, count(*) as count from activity group by player_id) as a left join activity as b on a.date1 + interval 1 day=b.event_date and a.player_id=b.player_id;
+
+select a.date1, round(count(b.event_date) / a.count, 2) as retention_rate from
+(select distinct player_id, min(event_date) as date1, count(*) as count from activity group by player_id) as a left join activity as b on a.date1 + interval 1 day=b.event_date and a.player_id=b.player_id
+group by a.date1, a.count;
+
+### 1098 Unpopular Books (Medium)
+select * from books;
+select * from orders_book;
+# Question: Reports the books that have sold less than 10 copies in the last year
+# Excluding books that have been available for less than 1 month from today. 
+# Assume today is 2019-06-23.
+# Method 1:
+select a.book_id, a.name from books as a  left join orders_book as b on a.book_id = b.book_id and 
+TIMESTAMPDIFF(year, b.dispatch_date,"2019-06-23") = 0 where TIMESTAMPDIFF(month, a.available_from,"2019-06-23")>1 group by a.book_id, a.name
+having  ifnull(sum(quantity),0) < 10;
+
+# Method 2:
+# Step 1:
+select a.*,b.* from books as a left join orders_book as b 
+on a.book_id=b.book_id where TIMESTAMPDIFF(month, a.available_from,"2019-06-23")>1; # Keep the data if the book is available for more than a month
+# Step 2:
+select a.book_id,a.name from books as a left join orders_book as b 
+on a.book_id=b.book_id where TIMESTAMPDIFF(month, a.available_from,"2019-06-23")>1
+group by a.book_id, a.name 
+having sum(if(TIMESTAMPDIFF(year, b.dispatch_date,"2019-06-23")=0,b.quantity,0)) < 10;
+# Note: we want to keep the books that have no any sales in the last year
+
+# Method 3:
+# Step 1:
+SELECT * FROM books AS B LEFT JOIN orders_book AS O 
+ON O.book_id = B.book_id AND O.dispatch_date BETWEEN '2018-06-23' AND '2019-06-23' # add an "and" instead of "where" right after the join will help creating more nulls
+WHERE DATEDIFF('2019-06-23', B.available_from) > 30;
+# Step 2:
+SELECT B.book_id, B.name FROM books AS B LEFT JOIN orders_book AS O
+ON O.book_id = B.book_id AND O.dispatch_date BETWEEN '2018-06-23' AND '2019-06-23' WHERE DATEDIFF('2019-06-23', B.available_from) > 30
+GROUP BY B.book_id, B.name
+HAVING SUM(IF(O.quantity IS NULL, 0, O.quantity)) < 10;
+
+### 1107 New Users Daily Count (Medium)
+select * from traffic;
+# Question: Reports for every date within at most 90 days from today (past), the number of users that logged in for the first time on that date. 
+# --- Assume today is 2019-06-30.
+# The user with id 5 first logged in on 2019-03-01 so he's not counted on 2019-06-21.
+select activity_date as login_date, count(distinct user_id) as user_count from traffic 
+where user_id in (select user_id from traffic group by user_id having datediff("2019-06-30",min(activity_date))<90)
+and activity = "login" group by activity_date; 
+
+### 1112 Highest Grade For Each Student (Medium)
+select * from enrollments;
+# Question: Fiind the highest grade with its corresponding course for each student. 
+# In case of a tie, you should find the course with the smallest course_id. The output must be sorted by increasing student_id.
+select student_id, min(course_id) as course_id,  grade from enrollments 
+where (student_id, grade) in (select student_id, max(grade) as grade from enrollments group by student_id) 
+group by student_id, grade;
+
+### 1113 Reported Posts (Easy)
+select * from actions;
+# Questoin: Reports the number of posts reported yesterday for each report reason (column: 'extra'). Assume today is 2019-07-05.
+select extra as report_reason, count(distinct post_id) as report_count from actions 
+where extra is not null and datediff(date("2019-07-05"), action_date)=1 
+group by extra;
+
+# 1126 Active Businesses (Medium)
+select * from events;
+# Question: Find all active businesses.
+# --- An active business is a business that has more than one event type with occurences greater than the average occurences of that event type among all businesses.
+select a.business_id from events as a left join  
+(select event_type, avg(occurences) as occurences from events group by event_type) as b on a.event_type=b.event_type 
+where a.occurences > b.occurences 
+group by business_id having count(a.event_type)>1;
+
+### 1127 User Purchase Platform (Hard)
+select * from spending;
+# Question: Find the total number of users and the total amount spent using mobile only, desktop only and both mobile and desktop together for each date.
+# Method one:
+select spend_date, "desktop" as platform, count(distinct user_id) as total_user, sum(amount) as total_amount from spending where (spend_date, user_id) not in (select spend_date, user_id from spending where platform = "mobile") group by spend_date
+union all
+select spend_date, "mobile" as platform, count(distinct user_id) as total_user, sum(amount) as total_amount from spending where (spend_date, user_id) not in (select spend_date, user_id from spending where platform = "desktop") group by spend_date
+union all
+select spend_date, "both" as platform, count(distinct user_id) as total_user, sum(amount) as total_amount from spending where (spend_date, user_id) 
+in (select spend_date,user_id from spending group by spend_date, user_id having count(distinct platform) > 1) group by spend_date
+union all 
+select distinct spend_date, "both" as platform, 0 as total_user, 0 as total_amount from spending where spend_date not in (select spend_date from spending group by spend_date, user_id having count(distinct platform) > 1);
+
+# Method two:
+# Second part -> only "both" part
+select a.spend_date, "both" as platform, ifnull(b.amount,0) as total_amount, ifnull(b.count1,0) as total_users from 
+(select distinct spend_date from spending) as a left join (select spend_date, "both" as platform, count(distinct user_id) as count1, sum(amount) as amount from spending group by spend_date, user_id having count(platform) = 2) b
+on a.spend_date = b.spend_date;
+
+### 1132 Reported Posts II (Medium)
+select * from actions2;
+select * from removals;
+# Question: Find the average for daily percentage of posts that got removed after being reported as spam, rounded to 2 decimal places.
+# -> The only days had spam reports are 2019-07-02 & 2019-07-04
+# -> The percentage for 2019-07-04 is 50% because only one post of two spam reported posts was removed.
+# -> The percentage for 2019-07-02 is 100% because one post was reported as spam and it was removed.
+# -> The average is (50 + 100) / 2 = 75%
+select round(avg(c.percent)*100,2) as average_daily_percent from (
+select a.action_date, count(b.post_id)/count(*) as percent from actions2 as a left join removals as b on a.post_id=b.post_id where extra = "spam" group by a.action_date) c; 
+
+### 1141 User Activity for the Past 30 Days I (Easy)
+select * from activity2;
+# Question: Find the daily active user count for a period of 30 days ending 2019-07-27 inclusively. 
+select activity_date as day, count(distinct user_id) as active_users from activity2 where datediff(date("2019-07-27"),activity_date) <=30 group by activity_date;
+
+### 1142 User Activity for the Past 30 Days II (Easy)
+select * from activity2;
+# Question: Find the average number of sessions per user for a period of 30 days ending 2019-07-27 inclusively, rounded to 2 decimal places. 
+select round(avg(active_session),2) as average_sessions_per_user from (
+select user_id, count(distinct session_id) as active_session from activity2 where datediff(date("2019-07-27"),activity_date) <=30 group by user_id) a;
+
+### 1148 Article Views I (Easy)
+select * from views;
+# Question: Find all the authors that viewed at least one of their own articles, sorted in ascending order by their id.
+select distinct author_id from views where author_id =  viewer_id order by author_id;
+
+### 1149 Article Views II (Medium)
+select * from views;
+# Question: Find all the people who viewed more than one article on the same date, sorted in ascending order by their id.
+select view_date, viewer_id from views group by view_date, viewer_id having count(distinct article_id)>1;
+
+### 1158 Market Analysis I (Medium)
+select * from users2;
+select * from orders2;
+# Question: Find for each user, the join date and the number of orders they made as a buyer in 2019.
+# Method One: 
+select a.join_date, b.buyer_id,count(case when year(order_date) = "2019" then buyer_id else null end) as buyer_id from users2 as a left join orders2 as b on a.user_id = b.buyer_id 
+group by a.join_date, b.buyer_id;
+
+# Method Two:
+select a.user_id as buyer_id, a.join_date, count(b.order_id) as orders_in_2019 from users2 as a left join orders2 as b on a.user_id=b.buyer_id and year(b.order_date)=2019 
+group by a.user_id, a.join_date;
+
+### 1159.Market Analysis II (Hard)
+select * from users2;
+select * from orders2;
+select * from items;
+# Question: Find for each user, whether the brand of the second item (by date) they sold is their favorite brand. 
+# --- If a user sold less than two items, report the answer for that user as no.
+# It is guaranteed that no seller sold more than one item on a day.
+select c.user_id, d.order_date, c.favorite_brand, d.item_brand, case when c.favorite_brand = d.item_brand then  "yes" else "no" end as 2nd_item_fav_brand 
+from users2 as c left join 
+(select a.*, (select count(b.order_date) from orders2 as b where a.order_date>=b.order_date and a.seller_id = b.seller_id) as date, b.item_brand from orders2 as a left join items as b on a.item_id = b.item_id) as d
+on c.user_id = d.seller_id and d.date = 2;
+
+### 1164 Product Price at a Given Date (Medium)
+select * from product3;
+# Find the prices of all products on 2019-08-16. 
+# --- Assume the price of all products before any change is 10.
+# Method 1: 
+select distinct product_id, price from (
+select product_id, 
+case when (product_id, change_date) in (select product_id, max(change_date) as max_date from product3 where change_date < "2019-08-16" group by product_id) then new_price
+when product_id not in (select product_id from product3 where change_date < "2019-08-16") then  "10" else null end as price from product3) a where price is not null;
+
+# Method 2:
+select product_id, if(change_date>"2019-08-16","10",new_price) as price from product3 where 
+(product_id, change_date) in (select product_id, max(change_date) as date from product3 where change_date<=("2019-08-16") group by product_id) or
+(product_id, change_date) in (select product_id, min(change_date) as date from product3 group by product_id having date > ("2019-08-16"));
+
+# Method 3:
+select distinct a.product_id, ifnull(b.new_price,"10") as price from product3 as a left join
+(select product_id, new_price from product3 where 
+(product_id, change_date) in (select product_id, max(change_date) as date from product3 where change_date<=("2019-08-16") group by product_id)) as b 
+on a.product_id = b.product_id;
+
+### 1173 Immediate Food Delivery I (Easy)
+select * from delivery;
+# Question: Fiind the percentage of immediate orders in the table, rounded to 2 decimal places.
+# If the preferred delivery date of the customer is the same as the order date then the order is called immediate otherwise it's called scheduled.
+# Method 1:
+select round(sum(case when order_date = customer_pref_delivery_date then 1 else 0 end) / count(*) *100, 2) as immediate_order from delivery;
+# Method 2:
+select round((select count(*) from delivery where order_date = customer_pref_delivery_date) / count(*)*100,2) as immediate_percentage from delivery;
+
+### 1174 Immediate Food Delivery II (Medium)
+select * from delivery;
+# Question: Find the percentage of immediate orders in the first orders of all customers, rounded to 2 decimal places.
+# If the preferred delivery date of the customer is the same as the order date then the order is called immediate otherwise it's called scheduled.
+select round(sum(case when order_date = customer_pref_delivery_date then 1 else 0 end) / count(*) *100, 2) as immediate_percentage from delivery
+where (customer_id,order_date) in (select customer_id,min(order_date) from delivery group by customer_id);
+
+### 1179. Reformat Department Table (Easy)
+select * from department3;
+# Question: Reformat the table such that there is a department id column and a revenue column for the first quarter (Jan-March).
+# rows -> id; columns -> month; values -> revenue
+select id, 
+	sum(case when month = 'Jan' then revenue else null end) as Jan_Revenue,
+	sum(case when month = 'Feb' then revenue else null end) as Feb_Revenue,
+	sum(case when month = 'Mar' then revenue else null end) as Mar_Revenue
+from department3
+group by id;
+
+### 1193 Monthly Transactions I (Medium)
+select * from transactions;
+# Question: Find for each month and country, the number of transactions and their total amount, the number of approved transactions and their total amount.
+select DATE_FORMAT(trans_date,"%Y-%m") as month, country, 
+count(*) as count, sum(amount) as trans_total_amount, sum(if(state="approved", 1,0)) as approved_amount, sum(if(state="approved",amount,0)) as approved_total_amount 
+from transactions group by country, month order by 1;
+
+### 1194 Tournament Winners (Hard)
+select * from players;
+select * from matches;
+# Find the winner in each group.
+# --- The winner in each group is the player who scored the maximum total points within the group. 
+# --- In the case of a tie, the lowest player_id wins.
+# Method 1:
+select group_id, min(player_id) from (
+	select player, sum(score) as score from ((select first_player as player, first_score as score from matches) union all (select second_player as player, second_score as score from matches) ) a group by player) b 
+    left join players as c on b.player = c.player_id
+where (c.group_id, b.score) in 
+	(select c.group_id, max(b.score) from (
+		select player, sum(score) as score from ((select first_player as player, first_score as score from matches) union all (select second_player as player, second_score as score from matches) ) a group by player) b 
+        left join players as c on b.player = c.player_id
+	group by group_id) 
+group by group_id;
+
+# Method 2: similar method
+# Step one:
+(select first_player as player_id, first_score as score from matches) union all (select second_player as player_id, second_score as score from matches);
+
+# Step two: join table "players" and get the group_id
+select a.player_id,sum(a.score) as sum, b.group_id from
+((select first_player as player_id, first_score as score from matches) union all (select second_player as player_id, second_score as score from matches)) as a
+left join players as b on a.player_id=b.player_id group by b.group_id, a.player_id;
+
+# Step three: Get the biggest sum for each group
+select max(a.score) as max, b.group_id from
+((select first_player as player_id, first_score as score from matches) union all (select second_player as player_id, second_score as score from matches)) as a 
+left join players as b on a.player_id=b.player_id group by b.group_id;
+
+# Step four: Add the step 3 as a filter to step 2
+select a.player_id,sum(a.score) as sum, b.group_id from 
+	((select first_player as player_id, first_score as score from matches) union all (select second_player as player_id, second_score as score from matches)) as a # step one
+	left join players as b on a.player_id=b.player_id group by b.group_id, a.player_id  # step two
+having (sum, b.group_id) in (select max(a.score) as max, b.group_id from # step four
+	((select first_player as player_id, first_score as score from matches) union all (select second_player as player_id, second_score as score from matches)) as a 
+    left join players as b on a.player_id=b.player_id group by b.group_id); # step three
+
+# Step five: Add another group based on step four
+select d.group_id, min(d.player_id) as player_id from
+	(select a.player_id,sum(a.score) as sum, b.group_id from
+		((select first_player as player_id, first_score as score from matches) union all (select second_player as player_id, second_score as score from matches)) as a
+		left join players as b on a.player_id=b.player_id group by b.group_id, a.player_id 
+	having (sum, b.group_id) in (select max(a.score) as max, b.group_id from
+		((select first_player as player_id, first_score as score from matches) union all (select second_player as player_id, second_score as score from matches)) as a 
+        left join players as b on a.player_id=b.player_id group by b.group_id)) as d 
+group by d.group_id;
+
+### 1204. Last Person to Fit in the Elevator (Medium)
+select * from queue;
+# Quesion: Find the person_name of the last person who will fit in the elevator without exceeding the weight limit. 
+# The maximum weight the elevator can hold is 1000.
+select person_name from (
+select a.*, (select sum(b.weight) from queue as b where b.turn <= a.turn) as weight_sum from queue as a) c where weight_sum <=1000 order by turn desc limit 1;
+
+### 1205 Monthly Transactions II (Medium)
+select * from transactions2;
+select * from chargebacks;
+# Question: Find for each month and country, the number of approved transactions and their total amount, the number of chargebacks and their total amount.
+
+
+5-1/1000/1/2000
+6-3-12000-1-1000
+
+# Method 1:
+# Step one:
+select a.*, b.*, date_format(a.trans_date,"%m/%Y") as date1, date_format(b.trans_date,"%m/%Y") as date2, case when a.state = "approved" then a.amount else null end as approved_amount,
+case when b.trans_date is not null then a.amount else null end as trans_amount from transactions2 as a left join chargebacks as b on a.id=b.trans_id;
+
+# Step two:
+select date1, country, count(approved_amount), sum(approved_amount) from 
+(select a.country, date_format(a.trans_date,"%m/%Y") as date1, date_format(b.trans_date,"%m/%Y") as date2, case when a.state = "approved" then a.amount else null end as approved_amount,
+case when b.trans_date is not null then a.amount else null end as trans_amount from transactions2 as a left join chargebacks as b on a.id=b.trans_id) c group by date1,country;
+
+select date2, country, count(trans_amount), sum(trans_amount) from 
+(select a.country, date_format(a.trans_date,"%m/%Y") as date1, date_format(b.trans_date,"%m/%Y") as date2, case when a.state = "approved" then a.amount else null end as approved_amount,
+case when b.trans_date is not null then a.amount else null end as trans_amount from transactions2 as a left join chargebacks as b on a.id=b.trans_id) c group by date2,country;
+
+# Step three: outer join will be too much, so we add the extra date from chargebacks dirctly
+select x.*, y.chargeback_count, y.chargeback_amount from 
+(select date1, country, count(approved_amount) as approved_count, sum(approved_amount) as approved_amount from 
+(select a.country, date_format(a.trans_date,"%m/%Y") as date1, date_format(b.trans_date,"%m/%Y") as date2, case when a.state = "approved" then a.amount else null end as approved_amount,
+case when b.trans_date is not null then a.amount else null end as trans_amount from transactions2 as a left join chargebacks as b on a.id=b.trans_id) c group by date1,country) as x left join 
+(select date2, country, count(trans_amount) as chargeback_count, sum(trans_amount) as chargeback_amount from 
+(select a.country, date_format(a.trans_date,"%m/%Y") as date1, date_format(b.trans_date,"%m/%Y") as date2, case when a.state = "approved" then a.amount else null end as approved_amount,
+case when b.trans_date is not null then a.amount else null end as trans_amount from transactions2 as a left join chargebacks as b on a.id=b.trans_id) c group by date2,country) as y on x.date1=y.date2 and x.country = y.country
+union all
+select a.month1, b.country, "0" as approved_count, "0" as approved_amount, count(a.trans_id) as chargeback_count, sum(b.amount) as chargeback_amount 
+	from (select trans_id, date_format(trans_date, "%m/%Y") as month1 from chargebacks where date_format(trans_date, "%Y-%m") not in (select date_format(trans_date, "%Y-%m") from transactions2)) a
+	left join transactions2 as b on a.trans_id=b.id group by a.month1, b.country;
+    
+# part one --- c --- approved_count & approved_amount
+select c.*, d.chargeback_count, d.chargeback_amount from (
+	select date_format(trans_date, "%Y-%m") as month, country, sum(if(state="approved",1,0)) as approved_count, sum(if(state="approved",amount,0)) as approved_amount
+	from transactions2 group by month, country) as c
+right join # we can see that the third row is missing --- remember to change the join back to "inner join"
+
+# part two --- d (a join b) --- chargeback_count and chargeback_amount
+	(select date_format(a.trans_date, "%Y-%m") as month2, b.country, count(a.trans_id) as chargeback_count, sum(b.amount) as chargeback_amount
+	from chargebacks as a left join transactions2 as b on a.trans_id=b.id group by month2, b.country) as d 
+on c.month=d.month2 and c.country=d.country
+union all
+
+# part three - replace the null part
+select a.month1, b.country, "0" as approved_count, "0" as approved_amount, count(a.trans_id) as chargeback_count, sum(b.amount) as chargeback_amount 
+	from (select trans_id, date_format(trans_date, "%Y-%m") as month1 from chargebacks where date_format(trans_date, "%Y-%m") not in (select date_format(trans_date, "%Y-%m") from transactions2)) a
+	left join transactions2 as b on a.trans_id=b.id group by a.month1, b.country;
+
+### 1211 Queries Quality and Percentage (Easy)
+select * from queries;
+# Question: Find for each query_name, the quality and poor query percentage
+# --- quality = average (rating / position)
+# --- poor_query_percentage = # of poor rating (less then 3) / total # of rating
+select query_name, round(avg(rating/position),2) as quality, round((sum(case when rating < 3 then 1 else 0 end) / count(query_name) * 100),2) as poor_query_percentage
+from queries group by query_name;
+
+### 1212 Team Scores in Football Tournament (Medium)
+select * from teams;
+select * from matches2; 
+# Question: Selects the team_id, team_name and num_points of each team in the tournament after all described matches. 
+# Result table should be ordered by num_points (decreasing order). In case of a tie, order the records by team_id (increasing order).
+# You would like to compute the scores of all teams after all matches. Points are awarded as follows:
+# --- A team receives three points if they win a match (Score strictly more goals than the opponent team).
+# --- A team receives one point if they draw a match (Same number of goals as the opponent team).
+# --- A team receives no points if they lose a match (Score less goals than the opponent team).
+select a.team_id, a.team_name, ifnull(sum(b.point),0) as num_points from teams as a left join 
+(select host_team as team,  case when host_goals > guest_goals then 3 when host_goals = guest_goals then 1 else 0 end as point from matches2
+union all
+select guest_team as team, case when host_goals < guest_goals then 3 when host_goals = guest_goals then 1 else 0 end as point from matches2) as b
+on a.team_id = b.team
+group by a.team_id, a.team_name order by 3 desc, 2;
+
+
+### 1225 Report Continuous Dates (Hard)
+select * from failed;
+select * from succeeded;
+# Question: Generate a report of period_state for each continuous interval of days in the period from 2019-01-01 to 2019-12-31.
+# --- A system is running one task every day. Every task is independent of the previous tasks. The tasks can fail or succeed
+# column 1: fail / succeed, column 2: start_date, column 3: end_date
+# Method 1:
+# Next time try to union all first and then group by state, start date
+(select "success" as state, a.success_date as start_date, min(b.success_date) as end_date from succeeded as a, succeeded as b 
+where (year(a.success_date) = 2019 and (a.success_date - interval 1 day) not in (select success_date from succeeded) or a.success_date = '2019-01-01')
+and (b.success_date>= a.success_date) and (b.success_date + interval 1 day) not in (select success_date from succeeded) group by state, a.success_date)
+
+union all
+
+(select "failed" as state, a.fail_date as start_date, min(b.fail_date) as end_date from failed as a, failed as b 
+where (year(a.fail_date) = 2019 and (a.fail_date - interval 1 day) not in (select fail_date from failed) or a.fail_date = '2019-01-01')
+and (b.fail_date>= a.fail_date) and (b.fail_date + interval 1 day) not in (select fail_date from failed) group by state, a.fail_date) order by 2;
+
+# Method 2:
+select state, start_date, end_date from (
+select state, max(start_date) as start_date, max(end_date) as end_date,
+case when @prev=state then @rank:=@rank else @rank:=@rank+1 end as rnk,
+@prev := state as prev
+from (
+select state, date,
+case 
+	when state='success' and date3 not in (select success_date from succeeded where year(success_date)=2019) then date 
+	when state='failed' and date3 not in (select fail_date from failed where year(fail_date)=2019) then date 
+	else null end as start_date,
+case 
+	when state='success' and date2 not in (select success_date from succeeded where year(success_date)=2019) then date 
+	when state='failed' and date2 not in (select fail_date from failed where year(fail_date)=2019) then date 
+	else null end as end_date
+from
+(select date, date_add(date, interval 1 day) as date2, date_add(date, interval -1 day) as date3, state
+from (select fail_date as date, "failed" as state from failed union all select success_date as date, "success" as state from succeeded) a
+where year(date)=2019) a
+order by date) b, (select @rank:= 0, @prev := null) c group by state, rnk) c order by 2;
+
+### 1241 Number of Comments per Post (Easy)
+select * from submissions;
+# Question: Find the number of comments for each post
+# --- if partent_id is null -> this is a post
+# --- The other sub_id is the comment for the post (parent_id)
+# --- The repetitive comments will only count once
+select a.sub_id as post_id, count(distinct b.sub_id) as number_of_comments from submissions as a left join submissions as b on a.sub_id = b.parent_id where a.parent_id is null group by a.sub_id;
+
+### 1251 Average Selling Price (Easy)
+select * from prices;
+select * from unitsold;
+# Question: Find the average selling price for each product.
+# Selling price = price * units
+select a.product_id, round(sum(a.price*b.units)/sum(b.units),2) as average_price from prices as a left join unitsold as b on a.product_id=b.product_id
+where b.purchase_date between a.start_date and a.end_date group by a.product_id;
+
+### 1264 Page Recommendations (Medium)
+select * from friendship;
+select * from likes;
+# Question: Write an SQL query to recommend pages to the user with user1_id = 1 using the pages that your friends liked. 
+# --- It should not recommend pages you already liked.
+select distinct b.page_id as recommended_page from friendship as a left join likes as b on a.user2_id=b.user_id
+where b.page_id not in (select page_id from likes where user_id=1)
+and a.user1_id=1;
+
+### 1270 All People Report to the Given Manager (Medium)
+select * from employee5;
+# Question: Find employee_id of all employees that directly or indirectly report their work to the head of the company.
+# --- The head of the company is the employee with employee_id 1.
+# --- The indirect relation between managers will not exceed 3 managers as the company is small.
+select a.employee_id from employee5 as a left join employee5 as b on a.manager_id=b.employee_id left join employee5 as c on b.manager_id=c.employee_id
+where c.manager_id=1 and a.employee_id != 1;
+
+### 1280 Students and Examinations (Easy)
+select * from student;
+select * from subjects;
+select * from examinations;
+# Question:  Find the number of times each student attended each exam.
+# Method 1: can delete
+select c.student_id, c.subject_name, sum(case when c.subject_name = d.subject_name then "1" else "0" end) from 
+(select a.student_id, b.subject_name from student as a, subjects as b) as c left join examinations as d on c.student_id = d.student_id
+group by c.student_id, c.subject_name;
+
+# Method 2: better
+select student_id, subject_name, count(*) as count from examinations group by student_id, subject_name;
+select c.student_id, c.student_name, c.subject_name, ifnull(d.count,0) as attended_exams from 
+(select a.*, b.* from student as a, subjects as b) c left join
+(select student_id, subject_name, count(*) as count from examinations group by student_id, subject_name) d on c.student_id=d.student_id and c.subject_name=d.subject_name;
+
+### 1285 Find the Start and End Number of Continuous Ranges (Medium)
+select * from logs2;
+# Question: Find the start and end number of continuous ranges in table Logs.
+# Method 1:
+select a.log_id as start_id, min(b.log_id) as end_id
+from (select log_id from logs2 where (log_id-1) not in (select * from logs2)) as a,
+(select log_id from logs2 where (log_id+1) not in (select * from logs2)) as b where b.log_id >= a.log_id
+group by a.log_id;
+
+# Method 2:
+# Step one:
+select distinct start_id, end_id, end_id-start_id as diff from (
+select a.log_id as start_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id-1) = 0) a, 
+(select a.log_id as end_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id+1) = 0) b;
+# Step two:
+select start_id, end_id from (
+select distinct start_id, end_id, end_id-start_id as diff from (
+select a.log_id as start_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id-1) = 0) a, 
+(select a.log_id as end_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id+1) = 0) b) c
+where (c.start_id, c.diff) in (
+select start_id, min(end_id-start_id) as diff from (
+select a.log_id as start_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id-1) = 0) a, 
+(select a.log_id as end_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id+1) = 0) b 
+where end_id-start_id>=0 group by start_id);
+
+# Method 2
+select start_id, end_id, diff, 
+case when @pre = start_id then 0 else 1 end as rnk,
+@pre := start_id
+from (
+select distinct start_id, end_id, end_id-start_id as diff from (
+(select a.log_id as start_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id-1) = 0) a, 
+(select a.log_id as end_id from logs2 as a where (select count(*) from logs2 as b where b.log_id=a.log_id+1) = 0) b) where end_id-start_id>=0 order by 1) c,
+(select @pre := null) d
+where case when @pre = start_id then 0 else 1 end=1;
+
+###  1294 Weather Type in Each Country (Easy)
+select * from countries;
+select * from weather2;
+# Question: Find the type of weather in each country for November 2019.
+# --- The type of weather is Cold if the average weather_state is less than or equal 15, Hot if the average weather_state is greater than or equal 25 and Warm otherwise.
+select a.country_name, 
+case 
+when avg(b.weather_state) <= 15 then "cold"
+when avg(b.weather_state) >= 25 then "hot"
+else "warm" end as weather_type 
+from countries as a left join weather2 as b on a.country_id=b.country_id where year(b.day) = 2019 and month(b.day) = 11
+group by a.country_name;
+
+### 1303 Find the Team Size (Easy) 
+select * from employee6;
+# Question: find the team size of each of the employees
+select a.employee_id, b.team_size from employee6 as a left join ( 
+select team_id, count(*) as team_size from employee6 group by team_id) as b on a.team_id = b.team_id;
+
+### 1308 Running Total for Different Genders (Medium)
+select * from scores;
+# Question: Find the total score for each gender at each day
+select gender, day, (select sum(b.score_points) from scores as b where a.day>=b.day and a.gender=b.gender) as total from scores as a order by 1,2;
+
+### 1321 Restaurant Growth (Medium)
+select * from customer3;
+# Question: Compute moving average of how much customer paid in a 7 days window (current day + 6 days before) .
+# Method 1: interval day
+select distinct a.visited_on, (select sum(b.amount)/7 from customer3 as b where b.visited_on between a.visited_on - interval 6 day and a.visited_on) from customer3 as a
+where a.visited_on >= (select min(visited_on) + interval 6 day from customer3);
+
+# Method 2: datediff()
+select distinct visited_on, 
+(select round(sum(amount), 2) from customer3 as b where datediff(a.visited_on, b.visited_on) between 0 and 6) as amount,
+(select count(amount) from customer3 as b where datediff(a.visited_on, b.visited_on) between 0 and 6) as count, 
+(select round(sum(amount)/7, 2) from customer3 as b where datediff(a.visited_on, b.visited_on) between 0 and 6) as average_amount
+from customer3 as a 
+where visited_on >= date_add((select min(visited_on) from customer3), interval 6 day);
+# Note: see the column: count --> we can't use count directly because there is a duplicate amount on 2019-01-10
+
+### 1322 Ads Performance (Easy)
+select * from ads;
+# Question: Find the Click-Through Rate (CTR) of each Ad
+# --- CTR = Ad total clicks / (Ad total clicks + Ad total views)
+# --- If Ad total clicks + Ad total views = 0 -> CTR = 0
+select ad_id, 
+round(ifnull(
+sum(case when action = "Clicked" then 1 else 0 end) / 
+sum(case when action = "Ignored" then 0 else 1 end), 0), 2) as ctr
+from ads group by ad_id;
+
+### 1327 List the Products Ordered in a Period (Easy)
+select * from products4;
+select * from orders3;
+# Question: Get the names of products with greater than or equal to 100 units ordered in February 2020 and their amount.
+select a.product_name, sum(unit) from products4 as a left join orders3 as b on a.product_id = b.product_id where year(b.order_date) = 2020 and month(b.order_date) = 2 
+group by a.product_name having sum(unit)>=100;
+
+### 1336 Number of Transactions per Visit (Hard)
+select * from visits;
+select * from transactions3;
+# Question: Find how many users visited the bank and didn't do any transactions, how many visited the bank and did one transaction and so on.
+# For transactions_count = 0, The visits (1, "2020-01-01"), (2, "2020-01-02"), (12, "2020-01-01") and (19, "2020-01-03") did no transactions so visits_count = 4.
+# For transactions_count = 1, The visits (2, "2020-01-03"), (7, "2020-01-11"), (8, "2020-01-28"), (1, "2020-01-02") and (1, "2020-01-04") did one transaction so visits_count = 5.
+# For transactions_count = 2, No customers visited the bank and did two transactions so visits_count = 0.
+# For transactions_count = 3, The visit (9, "2020-01-25") did three transactions so visits_count = 1.
+# For transactions_count >= 4, No customers visited the bank and did more than three transactions so we will stop at transactions_count = 3;
+
+# Method 1:
+# Step 1:
+select a.user_id, a.visit_date, b.transaction_date from visits as a left join transactions3 as b on a.user_id=b.user_id and b.transaction_date = a.visit_date;
+# Step 2:
+select a.user_id, a.visit_date, count(b.transaction_date) as count from visits as a left join transactions3 as b on a.user_id=b.user_id and b.transaction_date = a.visit_date group by a.user_id, a.visit_date;
+# Step 3: 
+select count, count(*) from (
+select a.user_id, a.visit_date, count(b.transaction_date) as count from visits as a left join transactions3 as b on a.user_id=b.user_id and b.transaction_date = a.visit_date group by a.user_id, a.visit_date) a 
+group by count;
+# Step 4:
+(select @rank := @rank+1 as rnk from transactions3, (select @rank := -1) r);
+# Step 5: 
+select c.rnk as transactions_count, ifnull(d.cc,0) as visits_count from ((select @rank := @rank+1 as rnk from transactions3, (select @rank := -1) r)) c left join (
+select count, count(*) as cc from (
+select a.user_id, a.visit_date, count(b.transaction_date) as count from visits as a left join transactions3 as b on a.user_id=b.user_id and b.transaction_date = a.visit_date group by a.user_id, a.visit_date) a 
+group by count) d
+on c.rnk = d.count
+having transactions_count <= (
+select max(count) from ( # from step 2
+select a.user_id, a.visit_date, count(b.transaction_date) as count from visits as a left join transactions3 as b on a.user_id=b.user_id and b.transaction_date = a.visit_date group by a.user_id, a.visit_date) a);
+
+# Method 2
+select x.rnk as transactions_count, ifnull(y.count,0) as visits_count from
+(select @rank := @rank+1 as rnk from transactions3, (select @rank := -1) r) x
+left join
+(select c.visit, count(visit) as count from (
+select a.user_id, b.transaction_date, (count(b.user_id)) as visit from visits as a left join transactions3 as b on a.user_id=b.user_id and visit_date=transaction_date
+group by a.user_id, b.transaction_date order by visit) c group by c.visit) as y on x.rnk=y.visit where x.rnk <= (select max(d.visit) from (select a.user_id, b.transaction_date, (count(b.user_id)) as visit from visits as a left join transactions3 as b on a.user_id=b.user_id and visit_date=transaction_date
+group by a.user_id, b.transaction_date) d);
+
+### 1341 Movie Rating (Medium)
+select * from movies;
+select * from users3;
+select * from movie_rating;
+# Question 1: Find the name of the user who has rated the greatest number of the movies.
+# --- In case of a tie, return lexicographically smaller user name.
+# Question 2: Find the movie name with the highest average rating in February 2020.
+# --- In case of a tie, return lexicographically smaller movie name..
+# Method 1:
+select b.name from movie_rating as a left join users3 as b on a.user_id = b.user_id where a.rating in (select max(rating) from movie_rating) order by 1 limit 1;
+
+select a.average, b.title from (
+select movie_id, avg(rating) as average from movie_rating where month(created_at) = 2 group by movie_id) as a left join movies as b on a.movie_id = b.movie_id
+where a.average in (select * from (select avg(rating) from movie_rating where month(created_at) = 2 group by movie_id order by avg(rating) desc limit 1) c) order by title limit 1;
+
+# Method 2:
+select b.name as results from (
+select user_id, max(rating) from movie_rating group by user_id order by 2 desc,1 limit 1) as a
+left join users3 as b on a.user_id=b.user_id
+union
+select b.title as resultes from (
+select movie_id, avg(rating) from movie_rating where year(created_at) = 2020 and month(created_at)=2 group by movie_id order by 2 desc,1 limit 1) as a
+left join movies as b on a.movie_id=b.movie_id;
+
+### 1350 Students With Invalid Departments (Easy)
+select * from department2;
+select * from students2;
+# Question: Find the id and the name of all students who are enrolled in departments that no longer exists.
+select a.id, a.name from students2 as a left join department2 as b on a.department_id=b.dept_id where b.dept_id is null;
+
+### 1355 Activity Participants (Medium)
+select * from friends;
+# Question: Find the names of all the activities with neither maximum, nor minimum number of participants.
+# Method 1:
+select * from (select activity, count(name) as cc from friends group by activity) a where cc not in (select max(cc) from (select activity, count(*) as cc from friends group by activity) a)
+and cc not in (select min(cc) from (select activity, count(*) as cc from friends group by activity) a);
+ 
+# Method 2:
+select activity as results from friends group by activity
+having count(*) > (select count(*) from friends group by activity order by 1 limit 1)
+and count(*) < (select count(*) from friends group by activity order by 1 desc limit 1);
+
+### 1364 Number of Trusted Contacts of a Customer (Medium)
+select * from customer4;
+select * from contacts;
+select * from invoices;
+# Question: Find the following for each invoice_id
+# --- customer_name: The name of the customer the invoice is related to.
+# --- price: The price of the invoice.
+# --- contacts_cnt: The number of contacts related to the customer.
+# --- trusted_contacts_cnt: The number of contacts related to the customer and at the same time they are customers to the shop. (i.e His/Her email exists in the Customers table.)
+# Method 1:
+ select e.customer_name, e.price, e.contacts_cnt, ifnull(f.cc,0) as trusted_contacts_cnt from (
+select c.*, ifnull(d.cc,0) as contacts_cnt from (
+select b.customer_name, a.price, a.user_id from invoices as a left join customer4 as b on a.user_id = b.customer_id) as c left join (
+select user_id, count(*) as cc from contacts group by user_id) as d on c.user_id = d.user_id) as e left join (
+select user_id, count(*) as cc from contacts where contact_email in (select email from customer4) group by user_id) as f on e.user_id = f.user_id;
+
+# Method 2:
+# step 1:
+select a.customer_id, a.customer_name, b.contact_name,
+case when contact_name in  (select customer_name from customer4) then 1 else 0 end
+from customer4 as a left join contacts as b 
+on a.customer_id=b.user_id;
+
+# step 2:
+select c.invoice_id, d.customer_name, c.price, d.count as contacts_cnt, d.sum as trusted_contacts_cnt from invoices as c left join (
+select a.customer_id, a.customer_name, count(b.contact_name) as count,
+sum(case when contact_name in  (select customer_name from customer4) then 1 else 0 end) as sum
+from customer4 as a left join contacts as b on a.customer_id=b.user_id group by customer_id, customer_name) as d on c.user_id=d.customer_id;
+# Note -> count(contact_name) -> make john's contacts_cnt = 0
+# --- Alice has three contacts, two of them are trusted contacts (Bob and John).
+# --- Bob has two contacts, none of them is a trusted contact.
+# --- Alex has one contact and it is a trusted contact (Alice).
+# --- John doesn't have any contacts.
+
+### 1369 Get the Second Most Recent Activity (Hard)
+select * from useractivity;
+# Question: Find the second most recent avtivity for each user
+# --- If the user only has one activity, return that activity
+
+# Method 1
+select * from useractivity where (username, endDate) in (
+select username, max(endDate) from (
+select a.*, (select count(b.endDate) from useractivity as b where a.username = b.username and b.endDate <= a.endDate) as act from useractivity as a) c where act <= 2
+group by username);
+
+# Method 2:
+select username, activity, startDate, endDate from (
+select username, activity, startDate, endDate, (select count(b.username) from useractivity as b where b.startDate<=a.startDate and a.username=b.username) as counts1
+from useractivity as a) c where (c.username, c.counts1) in (select username, if(count(*)=1,1,2) as counts2 from useractivity group by username);
+
+### 1378 Replace Employee ID With The Unique Identifier (Easy)
+select * from employee7;
+select * from employeeuni;
+# Question: Show the unique ID of each user, If a user doesn't have a unique ID replace just show null.
+select b.unique_id, a.name from employee7 as a left join employeeuni as b on a.id=b.id;
+
+### 1384 Total Sales Amount by Year (Hard)
+select * from product5; 
+select * from sales3;
+# Question: Find the total sales for each product in each year (2018-2020)
+# Method 1
+select a.product_id, b.product_name, a.report_year, a.total_amount from (
+select product_id, "2018" as report_year, 
+case when year(period_start) = 2018 and year(period_end) = 2018 then (datediff(period_end, period_start)+1) * average_daily_sales
+		 when year(period_start) = 2018 and year(period_end) > 2018 then (datediff("2018-12-31", period_start)+1) * average_daily_sales
+         else 0 end as total_amount from sales3
+union all
+select product_id, "2019" as report_year,
+case when year(period_start) = 2018 and year(period_end) = 2019 then (datediff(period_end, "2019-01-01")+1) * average_daily_sales
+		 when year(period_start) = 2018 and year(period_end) = 2020 then 365 * average_daily_sales
+		 when year(period_start) = 2019 and year(period_end) = 2019 then (datediff(period_end, period_start)+1) * average_daily_sales
+	     when year(period_start) = 2019 and year(period_end) = 2020 then (datediff("2019-12-31", period_start)+1) * average_daily_sales
+         else 0 end as total_amount from sales3
+union all
+select product_id, "2020" as report_year,
+case when year(period_start) < 2020 and year(period_end) = 2020 then (datediff(period_end, "2020-01-01")+1) * average_daily_sales
+ 	     when year(period_start) = 2020 and year(period_end) = 2020 then (datediff(period_end, period_start)+1) * average_daily_sales
+         else 0 end as total_amount from sales3) a
+left join product5 as b on a.product_id = b.product_id having total_amount != 0;
+         
+ # Method 2
+select c.product_id, d.product_name, c.report_year, (c.days+1) * c.average_daily_sales as total_amount
+from (
+(select product_id, average_daily_sales, "2018" as report_year,
+case 
+	when year(period_start) = 2018 and year(period_end) = 2018 then datediff(period_end, period_start)
+	when year(period_start) = 2018 and year(period_end) > 2018 then datediff("2018-12-31",period_start)
+    else null  end as days from sales3)
+union all
+(select product_id, average_daily_sales, "2019" as report_year,
+case 
+	when year(period_start) = 2018 and year(period_end) = 2019 then datediff(period_end, "2019-01-01")
+	when year(period_start) = 2018 and year(period_end) = 2020 then 365-1
+	when year(period_start) = 2019 and year(period_end) = 2019 then datediff(period_end, period_start)
+	when year(period_start) = 2019 and year(period_end) = 2020 then datediff("2019-12-31", period_start)
+    else null end as days from sales3)
+union all
+(select product_id, average_daily_sales, "2020" as report_year,
+case 
+	when year(period_start) < 2020 and year(period_end) = 2020 then datediff(period_end, "2020-01-01")
+    when year(period_start) = 2020 and year(period_end) = 2020 then datediff(period_end, period_start)
+	when year(period_start) = 2020 and year(period_end) > 2020 then datediff("2020-12-31",period_start)
+    else null end as days from sales3)
+) as c left join product5 as d on c.product_id=d.product_id
+where c.days is not null
+order by 1,3;
+
+### 1393 Capital Gain/Loss (Medium)
+select * from stocks;
+# Question: Report the Capital gain/loss for each stock
+# --- The capital gain/loss of a stock is total gain or loss after buying and selling the stock one or many times.
+select stock_name, sum(case when operation = "Buy" then -price else price end) as gain_loss
+from stocks group by stock_name;
+
+### 1398 Customers Who Bought Products A and B but Not C (Medium)
+select * from customers5;
+select * from orders4;
+# Question: Report the customer_id and customer_name of customers who bought products "A", "B" but did not buy the product "C" 
+# Method 1:
+select a.*, b.customer_name from (
+select b.customer_id from orders4 as a, orders4 as b where a.customer_id = b.customer_id and a.product_name = "A" and b.product_name = "B" and a.customer_id not in (select customer_id from orders4 where product_name = "C")) as a 
+left join customers5 as b on a.customer_id = b.customer_id;
+
+# Method 2: - delete
+# --- Since we want to recommend them buy this product.
+select e.customer_id, e.customer_name from customers5 as e left join (
+select c.customer_id from 
+(select a.customer_id, 
+sum(case when a.product_name="A" and b.product_name="B" then 1 else 0 end) as AB
+from orders4 as a, orders4 as b, orders4 as c where a.customer_id=b.customer_id group by a.customer_id having AB>0) as c inner join 
+(select a.customer_id, 
+sum(case when a.product_name="C" then 1 else 0 end) as C
+from orders4 as a, orders4 as b, orders4 as c where a.customer_id=b.customer_id group by a.customer_id having C=0) as d 
+on c.customer_id = d.customer_id) as f
+on e.customer_id=f.customer_id where f.customer_id is not null;
+
+### 1407 Top Travellers (Easy)
+select * from users4;
+select * from rides;
+# Question: Report the distance travelled by each user.
+# --- Return the result table ordered by travelled_distance in descending order, if two or more users travelled the same distance, order them by their name in ascending order.
+select a.name, ifnull(sum(b.distance),0) as travelled_distance from users4 as a left join rides as b 
+on a.id=b.user_id group by a.name order by travelled_distance desc, name;
+
+### 1412 Find the Quiet Students in All Exams (Hard)
+select * from student;
+select * from exam;
+# Question: Report the students (student_id, student_name) being "quiet" in ALL exams.
+# --- A "quite" student is the one who took at least one exam and didn't score neither the high score nor the low score.
+# Method 1:
+select * from student where student_id in (select student_id from exam) 
+and student_id not in (
+	select student_id from exam 
+	where (exam_id, score) in (select exam_id, max(score) from exam group by exam_id) 
+    or (exam_id, score) in (select exam_id, min(score) from exam group by exam_id)
+    );
+
+# Method 2: similar
+select distinct a.student_id, b.student_name from exam as a left join student as b on a.student_id=b.student_id
+where a.student_id not in (
+select student_id from exam where 
+(exam_id, score) in (select exam_id, max(score) from exam group by exam_id) or
+(exam_id, score) in (select exam_id, min(score) from exam group by exam_id));
+
+### 1421 NPV Queries (Medium)
+select * from npv;
+select * from queries2;
+# Question: Find the npv of all each query of queries table.
+select a.*, ifnull(b.npv, 0) as npv from queries2 as a left join npv as b on a.id=b.id and a.year=b.year order by 1, 2;
+
+### 1435 Create a Session Bar Chart (Easy)
+select * from sessions;
+# Question: Report the (bin, total) in any order
+# --- Duration is the time in seconds that a user has visited the application.
+# --- You want to know how long a user visits your application. You decided to create bins of "[0-5>", "[5-10>", "[10-15>" and "15 minutes or more" and count the number of sessions on it.
+select distinct c.bin, ifnull(d.total,0) as total from (
+select case 
+	when session_id=1 then "[0-5>"
+	when session_id=2 then "[5-10>"
+	when session_id=3 then "[10-15>" 
+    else "15 or more" end as bin from sessions) as c
+left join (
+select case 
+	when duration/60 < 5 then "[0-5>"
+	when duration/60 < 10 then "[5-10>"
+	when duration/60 < 15 then "[10-15>" 
+    else "15 or more" end as bin, count(duration/60) as total from sessions group by bin) as d
+on c.bin=d.bin;
